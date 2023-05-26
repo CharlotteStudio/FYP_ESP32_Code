@@ -1,38 +1,134 @@
-sssss#include "BLE_Server_Header.h"
-#include "painlessMesh.h"
-#include "MyVariable_Header.h"
+// Version 0.1.0, Release at 20230526
+#include "BLE_Server_Setup_Header.h"
+#include "DeviceInfo_Header.h"
+#include "Info_Header.h"
+#include "SoftwareSerial_Header.h"
+#include "WiFiMesh_Header.h"
 #include <ArduinoJson.h>
-#include <SoftwareSerial.h>
 
-// Rx Tx
-#define rxPin 13
-#define txPin 12
+//void SoftwareSerialSendout();
+//void SoftwareSerialReceive();
+void ReceivedMessageFormWiFiMesh(unsigned int, String&);
+void SendoutRegisteredSuccessMessage(unsigned int);
 
-#define jsonSerializeSize 64
-#define jsonDeserializeSize 96
+void setup()
+{
+  SetUpSerial();
+  Serial.begin(115200);
+  
+  SetUpBLE();
+  SetUpReceivedMessageCallback(&ReceivedMessageFormWiFiMesh);
+  SetUpWifiMesh();
+}
 
-SoftwareSerial mySerial(rxPin, txPin);
+void loop()
+{
+  //SoftwareSerialReceive();
+  UpdateWifiMesh();
+  /*
+  String currentSoilValue = GetCharacteristicMessage(characteristicUUID_SoilSensor);
+  
+  if (currentSoilValue != lastSoilString)
+  {
+    lastSoilString = currentSoilValue;
+    SoftwareSerialSendout();
+  }
 
-// BLE
-static char* serviceUID          = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-static char* deviceName          = "ESP32-BLE-Server";
-static char* characteristicUUID_SoilSensor  = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
-static char* characteristicUUID_Irrigation  = "beb5483e-36e1-4688-b7f5-ea07361b26a7";
+  CheckIrrigation();
+  */
+  delay(50);
+}
 
-// Wifi Mesh
-#define   MESH_PREFIX     "TestingMeshWifi"
-#define   MESH_PASSWORD   "somethingSneaky"
-#define   MESH_PORT       5555
-uint32_t myNodeId;
-painlessMesh mesh;
+void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
+{
+  StaticJsonDocument<jsonDeserializeSize> doc;
 
-// Data
-String name = "Testing Device";
-String lastSoilString = "";
-String toTriggerIrrigation = "";
-int lastSoil = 0;
-int triggerIrrigation = 2700;
+  DeserializationError error = deserializeJson(doc, json);
 
+  if (error)
+  {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
+
+  unsigned int targetDevice = doc["To"].is<unsigned int>();
+  Serial.print("Target is [");
+  Serial.print(targetDevice);
+  
+  if (targetDevice != 1)
+  {
+    Serial.println("], is not me");
+    return;
+  }
+  Serial.println("], is me");
+  
+  bool isRegisterMessage = doc["Register"].is<int>();
+  int index = GetExistedDeviceInt(wifiMeshDeviceId);
+
+  if (!isRegisterMessage && index != -1)
+  {
+    deviceInfo[index].value = doc["Value"];
+    printf("Update value is [%d]", deviceInfo[index].value);
+    // SEND OUT !
+    return;
+  }
+
+  // Create a new  Device
+  if (index == -1)
+  {
+    int deviceTpye = doc["DeviceTpye"];
+    const char* mac = doc["DeviceMAC"];
+    int onOff = doc["Register"];
+
+    printf("Register a new device\nDeviceTpye is [%d]\nDeviceMAC is [%s]\nRegistered : [%d]\n", deviceTpye, mac, onOff);
+
+    DeviceInfo newDevice = {
+        .deviceMAC = String(mac),
+        .deviceTpye = deviceTpye,
+        .onOff = onOff,
+        .value = 0,
+        .wifiMeshDeviceId = wifiMeshDeviceId
+    };
+    deviceInfo[currentRegistedDeviceCount++] = newDevice;
+    
+    printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount);
+    
+    SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
+  }
+  else
+  {
+    printf("Decive [%d] had been existed", wifiMeshDeviceId);
+    SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
+  }
+}
+
+void SendoutRegisteredSuccessMessage(unsigned int target)
+{
+  StaticJsonDocument<jsonSerializeRegisterSize> doc;
+  doc["To"] = target;
+  doc["Register"] = 1;
+  String str;
+  serializeJsonPretty(doc, str);
+  SendoutWifiMesh(str);
+}
+
+/*
+void CheckIrrigation()
+{
+  if (lastSoil > triggerIrrigation)
+  {
+    String str = GetCharacteristicMessage(characteristicUUID_Irrigation);
+    
+    if(str == "Off" || str == "")
+    {
+      Serial.println("Set Irrigation : On");
+      SetCharacteristicMessage(characteristicUUID_Irrigation, "On");
+    }
+  }
+}
+*/
+/*
 void SoftwareSerialSendout()
 {
   StaticJsonDocument<48> doc;
@@ -101,101 +197,4 @@ void SoftwareSerialReceive()
     }
   }
 }
-
-void receivedCallback(uint32_t from, String &msg )
-{
-  Serial.printf("Received message from Node ID [%u] msg = [%s]\n", from, msg.c_str());
-}
-
-void changedConnectionCallback()
-{
-  Serial.printf("changed connections\n");
-}
-
-void BLEConnectedCallback()
-{
-  Serial.println("A BLE Device Connected.");
-}
-
-void BLEDisconnectedCallback()
-{
-  Serial.println("A BLE Device Disconnected.");
-}
-
-void setup()
-{
-  Serial.begin(115200);
-  
-  SetUpWifiSerial();
-  SetUpBLE();
-  SetUpWifiMesh();
-}
-
-void loop()
-{
-  SoftwareSerialReceive();
-  
-  String currentSoilValue = GetCharacteristicMessage(characteristicUUID_SoilSensor);
-  
-  if (currentSoilValue != lastSoilString)
-  {
-    lastSoilString = currentSoilValue;
-    SoftwareSerialSendout();
-  }
-
-  CheckIrrigation();
-  
-  mesh.update();
-}
-
-void SetUpWifiSerial()
-{
-  pinMode(rxPin, INPUT);
-  pinMode(txPin, OUTPUT);
-  mySerial.begin(4800);
-}
-
-void SetUpBLE()
-{
-  SetUpDeviceConnectedCallback(BLEConnectedCallback);
-  SetUpDeviceDisconnectedCallback(BLEDisconnectedCallback);
-
-  SetUpBLEServer(deviceName);
-  
-  SetUpBLEService(serviceUID);
-
-  SetUpBLECharacteristic(characteristicUUID_SoilSensor);
-  SetUpBLECharacteristic(characteristicUUID_Irrigation);
-  
-  SetCharacteristicMessage(characteristicUUID_SoilSensor, lastSoilString);
-  SetCharacteristicMessage(characteristicUUID_Irrigation, toTriggerIrrigation);
-
-  SetUpAdvertising();
-}
-
-void SetUpWifiMesh()
-{
-  mesh.setDebugMsgTypes( ERROR | STARTUP );
-
-  mesh.init( MESH_PREFIX, MESH_PASSWORD, MESH_PORT );
-  mesh.onReceive(receivedCallback);
-  mesh.onChangedConnections(changedConnectionCallback);
-
-  Serial.print("Device Node ID : ");
-  myNodeId = mesh.getNodeId();
-  Serial.println(myNodeId);
-}
-
-void CheckIrrigation()
-{
-  if (lastSoil > triggerIrrigation)
-  {
-    String str = GetCharacteristicMessage(characteristicUUID_Irrigation);
-    
-    if(str == "Off" || str == "")
-    {
-      Serial.println("Set Irrigation : On");
-      SetCharacteristicMessage(characteristicUUID_Irrigation, "On");
-    }
-  }
-}
+*/
