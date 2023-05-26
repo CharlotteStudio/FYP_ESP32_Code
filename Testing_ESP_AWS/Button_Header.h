@@ -1,4 +1,4 @@
-// Version 0.1.1
+// Version 0.1.2
 #define maxButtonCount 4  // maximum callback function count
 #define buttonDebugLog 0  // 0 hide, 1 show
 
@@ -31,14 +31,7 @@ void CheckButtonOnClick(int buttonIndex, int pin)
     {
       buttonDown[buttonIndex] = true;
       
-      if (buttonDebugLog)
-      {
-        Serial.print("pin [");
-        Serial.print(pin);
-        Serial.print("] Button up   (");
-        Serial.print(getOnClick);
-        Serial.println(").");
-      }
+      if (buttonDebugLog) printf("pin [%d] Button up   (%d).\n", pin, getOnClick);
       
       if (onClickCallback[buttonIndex] != NULL)
       {
@@ -46,9 +39,7 @@ void CheckButtonOnClick(int buttonIndex, int pin)
       }
       else
       {
-        Serial.print("[Warning] Have don't set up any function at [");
-        Serial.print(buttonIndex);
-        Serial.println("].");
+        printf("[Warning] Have don't set up any function at [%d].\n", buttonIndex);
       }
     }
   }
@@ -58,14 +49,7 @@ void CheckButtonOnClick(int buttonIndex, int pin)
     {
       buttonDown[buttonIndex] = false;
       
-      if (buttonDebugLog)
-      {
-        Serial.print("pin [");
-        Serial.print(pin);
-        Serial.print("] Button down (");
-        Serial.print(getOnClick);
-        Serial.println(").");
-      }
+      if (buttonDebugLog) printf("pin [%d] Button down (%d).\n", pin, getOnClick);
     }
   }
 }
