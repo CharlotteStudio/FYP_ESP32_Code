@@ -21,10 +21,10 @@ struct DeviceInfo
     int deviceTpye;
     int onOff;
     int value;
-    unsigned int wiFiMeshDeviceId;
+    unsigned int wifiMeshDeviceId;
 };
 
-DeviceInfo deviceInfo[maximum_device_count];
+static DeviceInfo deviceInfo[maximum_device_count];
 static int currentRegistedDeviceCount = 0;
 
 bool isRegister = false;
@@ -73,7 +73,7 @@ void SendoutRegisteredSuccessMessage(unsigned int target)
   SendoutWifiMesh(str);
 }
 
-void DeserializateJson(unsigned int wiFiMeshDeviceId, String json)
+void DeserializateJson(unsigned int wifiMeshDeviceId, String json)
 {
   StaticJsonDocument<jsonDeserializeSize> doc;
 
@@ -99,7 +99,7 @@ void DeserializateJson(unsigned int wiFiMeshDeviceId, String json)
   }
 
   bool isRegisterMessage = doc["Register"].is<int>();
-  int index = GetExistedDeviceInt(wiFiMeshDeviceId);
+  int index = GetExistedDeviceInt(wifiMeshDeviceId);
   if (isRegisterMessage)
   {
     if (index == -1)
@@ -121,19 +121,19 @@ void DeserializateJson(unsigned int wiFiMeshDeviceId, String json)
           .deviceTpye = deviceTpye,
           .onOff = onOff,
           .value = 0,
-          .wiFiMeshDeviceId = wiFiMeshDeviceId
+          .wifiMeshDeviceId = wifiMeshDeviceId
       };
       
       deviceInfo[currentRegistedDeviceCount++] = newDevie;
 
       Serial.print("Current Registered Decive Count is ");
       Serial.println(currentRegistedDeviceCount);
-      SendoutRegisteredSuccessMessage(wiFiMeshDeviceId);
+      SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
     }
     else
     {
       Serial.print("Decive [");
-      Serial.print(wiFiMeshDeviceId);
+      Serial.print(wifiMeshDeviceId);
       Serial.println("] had been existed");
     }
   }
@@ -146,13 +146,13 @@ void DeserializateJson(unsigned int wiFiMeshDeviceId, String json)
   }
 }
 
-bool IsExistedDevice(unsigned int wiFiMeshDeviceId) { return (GetExistedDeviceInt(wiFiMeshDeviceId) != -1); }
+bool IsExistedDevice(unsigned int wifiMeshDeviceId) { return (GetExistedDeviceInt(wifiMeshDeviceId) != -1); }
 
-int GetExistedDeviceInt(unsigned int wiFiMeshDeviceId)
+int GetExistedDeviceInt(unsigned int wifiMeshDeviceId)
 {
     for(int i = 0; i < maximum_device_count; i++)
     {
-      if (deviceInfo[i].wiFiMeshDeviceId == wiFiMeshDeviceId)
+      if (deviceInfo[i].wifiMeshDeviceId == wifiMeshDeviceId)
         return i;
     }
     return -1;
