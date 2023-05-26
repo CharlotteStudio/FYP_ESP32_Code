@@ -35,7 +35,7 @@ void loop()
   
   String json = HandleReceivedMessageFromSoftwareSerial();
   
-  if (!WiFi.isConnected() || IsConnectedAWS())
+  if (!WiFi.isConnected() || !IsConnectedAWS())
   {
     delay(100);
     return;
@@ -78,15 +78,15 @@ String HandleReceivedMessageFromSoftwareSerial()
     return "";
   }
 
-  printf("DeviceTpye is [%d]\nDeviceMAC is  [%s]", doc["DeviceTpye"].as<int>(), doc["DeviceMAC"].as<String>().c_str());
+  printf("DeviceTpye is [%d]\nDeviceMAC is  [%s]\n", doc["DeviceTpye"].as<int>(), doc["DeviceMAC"].as<String>().c_str());
  
   if (doc["Register"].is<int>())
   {
-    printf("Register is [%d]\n", doc["Register"].as<int>());
+    printf("Register is   [%d]\n", doc["Register"].as<int>());
   }
   else
   {
-    printf("value is [%d]\n", doc["Value"].as<int>());
+    printf("value is      [%d]\n", doc["Value"].as<int>());
     doc["Time"] = (unsigned long) time(NULL);
   }
   
