@@ -43,7 +43,6 @@ String CreateJson()
   else
   {
     StaticJsonDocument<jsonSerializeDataSize> doc;
-    doc["To"] = 0;
     doc["Value"] = random(2700);
     serializeJsonPretty(doc, str);
   }
