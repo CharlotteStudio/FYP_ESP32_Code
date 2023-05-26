@@ -12,6 +12,9 @@
 #define wifi_ssid2 "Galaxy A33"
 #define wifi_password2 "64854678"
 
+String userName = "testingtesting@gmail.com";
+String password = "1234567890";
+
 void setup()
 {
   SetUpSerial();
@@ -74,28 +77,16 @@ String HandleReceivedMessageFromSoftwareSerial()
     Serial.println(error.f_str());
     return "";
   }
-  
-  bool isOn = doc["Register"].is<int>();
-  int deviceTpye = doc["DeviceTpye"];
-  const char* mac = doc["DeviceMAC"];
-  
-  Serial.print("]DeviceTpye is [");
-  Serial.print(deviceTpye);
-  Serial.print("]\nDeviceMAC is  [");
-  Serial.print(mac);
-  
-  if (isOn)
+
+  printf("DeviceTpye is [%d]\nDeviceMAC is  [%s]", doc["DeviceTpye"].as<int>(), doc["DeviceMAC"].as<String>().c_str());
+ 
+  if (doc["Register"].is<int>())
   {
-    int onOff = doc["Register"];
-    Serial.print("]\nOnOff is : ");
-    Serial.print(onOff);
+    printf("Register is [%d]\n", doc["Register"].as<int>());
   }
   else
   {
-    int value = doc["Value"];
-    Serial.print("Value is [");
-    Serial.print(value);
-    Serial.println("]");
+    printf("value is [%d]\n", doc["Value"].as<int>());
     doc["Time"] = (unsigned long) time(NULL);
   }
   
