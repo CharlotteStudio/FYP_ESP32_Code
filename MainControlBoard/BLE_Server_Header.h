@@ -1,4 +1,5 @@
-/*
+/* Version 0.1.0
+ *  
  * BLE Server, ESP32 only
  * Resource : https://www.electronicshub.org/esp32-ble-tutorial/
  * 
@@ -22,12 +23,6 @@
 
 #define characteristicSize 8
 
-typedef void (*OnDeviceConnectedCallback)();
-typedef void (*OnDeviceDisconnectedCallback)();
-
-OnDeviceConnectedCallback    onDeviceConnectedCallback;
-OnDeviceDisconnectedCallback onDeviceDisconnectedCallback;
-
 static BLEUUID           serviceUUID;
 static BLEUUID           characteristicUUIDArray[characteristicSize];
 static BLECharacteristic *myCharacteristicArray[characteristicSize];
@@ -36,17 +31,16 @@ static BLEServer         *myServer;
 static BLEService        *myService;
 static BLEAdvertising    *myAdvertising;
 
-int registeredCharacteristicCount = 0;
+static int registeredCharacteristicCount = 0;
 
-void SetUpDeviceConnectedCallback(OnDeviceConnectedCallback cb)
-{
-  onDeviceConnectedCallback = cb;
-}
+typedef void (*OnDeviceConnectedCallback)();
+typedef void (*OnDeviceDisconnectedCallback)();
 
-void SetUpDeviceDisconnectedCallback(OnDeviceDisconnectedCallback cb)
-{
-  onDeviceDisconnectedCallback = cb;
-}
+static OnDeviceConnectedCallback    onDeviceConnectedCallback;
+static OnDeviceDisconnectedCallback onDeviceDisconnectedCallback;
+
+void SetUpDeviceConnectedCallback(OnDeviceConnectedCallback cb) { onDeviceConnectedCallback = cb; }
+void SetUpDeviceDisconnectedCallback(OnDeviceDisconnectedCallback cb) { onDeviceDisconnectedCallback = cb; }
 
 class MyServerCallbacks: public BLEServerCallbacks
 {
@@ -168,12 +162,12 @@ String GetCharacteristicMessage(char* characteristicUUID)
   int matchIndex = GetMatchCharacteristicIntex(characteristicUUID);
   if (matchIndex == -1)
   {
-    //Serial.println("Do not find match BLECharacteristic.");
+    Serial.println("Do not find match BLECharacteristic.");
     return "";
   }
 
   std::string value = myCharacteristicArray[matchIndex]->getValue();
-  //Serial.print("Get the Value : ");
-  //Serial.println(value.c_str());
+  Serial.print("Get the Value : ");
+  Serial.println(value.c_str());
   return value.c_str();
 }
