@@ -1,4 +1,3 @@
-// Version 0.1.0, Release at 20230523
 #define led_no_wifi_pin 23
 #define led_aws_pin 18
 

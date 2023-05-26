@@ -1,4 +1,3 @@
-// Version 0.1.0, Release at 20230523
 #include "AWS_IoTCore_Header.h"
 #include "AWSConnecter_Header.h"
 #include "Info_Header.h"

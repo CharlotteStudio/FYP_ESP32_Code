@@ -1,4 +1,3 @@
-// Version 0.1.0, Release at 20230526
 #include "BLE_Server_Setup_Header.h"
 #include "DeviceInfo_Header.h"
 #include "Info_Header.h"
@@ -75,6 +74,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
     serializeJsonPretty(doc, mySerial);
     Serial.println("Software Serial send out json : ");
     serializeJsonPretty(doc, Serial);
+    Serial.println("");
     return;
   }
 
@@ -107,6 +107,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
   serializeJsonPretty(doc, mySerial);
   Serial.println("Software Serial send out json : ");
   serializeJsonPretty(doc, Serial);
+  Serial.println("");
 }
 
 void SendoutRegisteredSuccessMessage(unsigned int target)

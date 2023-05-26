@@ -1,4 +1,10 @@
-// Version 0.1.1, Release at 20230525
+#define jsonSerializeRegisterSize 192
+#define jsonSerializeDataSize 32
+#define jsonDeserializeSize 192
+#define jsonSerializeAWSDataSize 256
+
+#define DeviceTpye 1
+
 /* DeviceTpye
 0 : Main Device
 1 : Soli Sensor
@@ -7,13 +13,6 @@
 4 : Fan
 5 : Lighting
 */
-
-#define jsonSerializeRegisterSize 192
-#define jsonSerializeDataSize 32
-#define jsonDeserializeSize 192
-#define jsonSerializeAWSDataSize 256
-
-#define DeviceTpye 1
 
 // To Main Control Board Register
 /*

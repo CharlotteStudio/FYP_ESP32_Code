@@ -1,4 +1,3 @@
-// Version 0.1.0, Release at 20230523
 #include <SoftwareSerial.h>
 
 #define rxPin 13
