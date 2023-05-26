@@ -2,6 +2,7 @@
 #include "WiFiMesh_Header.h"
 #include "Button_Header.h"
 #include "Info_Header.h"
+#include "DeviceInfo_Header.h"
 #ifdef ESP32
   #include <WiFi.h>
 #else
@@ -13,19 +14,6 @@
 #define buttonPin 2
 
 String mac_Address_str;
-
-typedef struct DeviceInfo DeviceInfo;
-struct DeviceInfo
-{
-    String deviceMAC;
-    int deviceTpye;
-    int onOff;
-    int value;
-    unsigned int wifiMeshDeviceId;
-};
-
-static DeviceInfo deviceInfo[maximum_device_count];
-static int currentRegistedDeviceCount = 0;
 
 bool isRegister = false;
 
@@ -86,76 +74,48 @@ void DeserializateJson(unsigned int wifiMeshDeviceId, String json)
     return;
   }
 
-  unsigned int targetDevice = doc["To"].is<unsigned int>();
-  Serial.print("Target is [");
+  unsigned int targetDevice = doc["To"].as<unsigned int>();
+  Serial.print("Message Target is [");
   Serial.print(targetDevice);
-  if (targetDevice == GetMyNodeId())
-  {
-    Serial.println("], is me");
-  }
-  else
+  
+  if (targetDevice != 0)
   {
     Serial.println("], is not me");
+    return;
   }
+  Serial.println("], is me");
 
   bool isRegisterMessage = doc["Register"].is<int>();
   int index = GetExistedDeviceInt(wifiMeshDeviceId);
-  if (isRegisterMessage)
+
+  if (!isRegisterMessage && index != -1)
   {
-    if (index == -1)
-    {
-      int deviceTpye = doc["DeviceTpye"];
-      const char* mac = doc["DeviceMAC"];
-      int onOff = doc["Register"];
+    deviceInfo[index].value = doc["Value"].as<int>();
+    printf("Update value is [%d]", deviceInfo[index].value);
+    return;
+  }
 
-      Serial.println("Register a new device");
-      Serial.print("DeviceTpye is [");
-      Serial.print(deviceTpye);
-      Serial.print("]\nDeviceMAC is  [");
-      Serial.print(mac);
-      Serial.print("]\nRegister : ");
-      Serial.println(onOff);
-
-      DeviceInfo newDevie = {
-          .deviceMAC = String(mac),
-          .deviceTpye = deviceTpye,
-          .onOff = onOff,
-          .value = 0,
-          .wifiMeshDeviceId = wifiMeshDeviceId
-      };
-      
-      deviceInfo[currentRegistedDeviceCount++] = newDevie;
-
-      Serial.print("Current Registered Decive Count is ");
-      Serial.println(currentRegistedDeviceCount);
-      SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
-    }
-    else
-    {
-      Serial.print("Decive [");
-      Serial.print(wifiMeshDeviceId);
-      Serial.println("] had been existed");
-    }
+  if (index == -1)
+  {
+    DeviceInfo newDevice = {
+        .deviceMAC = doc["DeviceMAC"].as<String>(),
+        .deviceTpye = doc["DeviceTpye"].as<int>(),
+        .onOff = doc["Register"].as<int>(),
+        .value = 0,
+        .wifiMeshDeviceId = wifiMeshDeviceId
+    };
+    deviceInfo[currentRegistedDeviceCount++] = newDevice;
+    
+    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMAC is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\n", newDevice.deviceTpye, newDevice.deviceMAC.c_str(), newDevice.onOff, newDevice.wifiMeshDeviceId);
+    printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount);
+    
+    SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
   }
   else
   {
-    deviceInfo[index].value = doc["Value"];
-    Serial.print("Update value is [");
-    Serial.print(deviceInfo[index].value);
-    Serial.println("]");
+    printf("Decive [%u] had been existed", wifiMeshDeviceId);
+    //SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
   }
-}
-
-bool IsExistedDevice(unsigned int wifiMeshDeviceId) { return (GetExistedDeviceInt(wifiMeshDeviceId) != -1); }
-
-int GetExistedDeviceInt(unsigned int wifiMeshDeviceId)
-{
-    for(int i = 0; i < maximum_device_count; i++)
-    {
-      if (deviceInfo[i].wifiMeshDeviceId == wifiMeshDeviceId)
-        return i;
-    }
-    return -1;
 }
 
 void setup()
