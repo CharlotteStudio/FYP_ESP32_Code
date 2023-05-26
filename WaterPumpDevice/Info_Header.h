@@ -42,3 +42,15 @@
   "Register":0
 }
 */
+
+
+// AWS ⇒ Main Control Board
+/*
+{
+  "DeviceType":int,
+  "DeviceMac":long/int
+  "OwnerDevice":string
+  "ActiveValue":int
+  "ActiveState":bool
+}
+*/
