@@ -45,6 +45,7 @@ void loop()
   {
     AWSSendoutJson(json);
   }
+  delay(100);
 }
 
 void TryConnection()
