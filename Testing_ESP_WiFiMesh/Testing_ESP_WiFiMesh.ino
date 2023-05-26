@@ -44,7 +44,7 @@ String CreateJson()
   {
     StaticJsonDocument<jsonSerializeDataSize> doc;
     doc["To"] = 0;
-    doc["Value"] = 1000;
+    doc["Value"] = random(2700);
     serializeJsonPretty(doc, str);
   }
   isRegister = !isRegister;
@@ -78,7 +78,7 @@ void DeserializateJson(unsigned int wifiMeshDeviceId, String json)
   Serial.print("Message Target is [");
   Serial.print(targetDevice);
   
-  if (targetDevice != 0)
+  if (targetDevice != GetMyNodeId())
   {
     Serial.println("], is not me");
     return;
@@ -139,6 +139,7 @@ void setup()
     mac_Address_str = String(mac_Address_str + ":");
     mac_Address_str = String(mac_Address_str + mac_Address[i]);
   }
+  randomSeed(analogRead(0));
 }
 
 void loop()
