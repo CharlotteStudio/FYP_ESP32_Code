@@ -6,7 +6,6 @@
 #include "WiFiMesh_Header.h"
 #include <ArduinoJson.h>
 
-//void SoftwareSerialSendout();
 //void SoftwareSerialReceive();
 void ReceivedMessageFormWiFiMesh(unsigned int, String&);
 void SendoutRegisteredSuccessMessage(unsigned int);
@@ -33,8 +32,6 @@ void loop()
     lastSoilString = currentSoilValue;
     SoftwareSerialSendout();
   }
-
-  CheckIrrigation();
   */
   delay(50);
 }
@@ -66,15 +63,22 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
   bool isRegisterMessage = doc["Register"].is<int>();
   int index = GetExistedDeviceInt(wifiMeshDeviceId);
 
+  // Software Serial send out value
   if (!isRegisterMessage && index != -1)
   {
     deviceInfo[index].value = doc["Value"].as<int>();
     printf("Update value is [%d]\n", deviceInfo[index].value);
-    // SEND OUT !
+    
+    doc["DeviceTpye"] = deviceInfo[index].deviceTpye;
+    doc["DeviceMAC"] = deviceInfo[index].deviceMAC;
+    
+    serializeJsonPretty(doc, mySerial);
+    Serial.println("Software Serial send out json : ");
+    serializeJsonPretty(doc, Serial);
     return;
   }
 
-  // Create a new  Device
+  // Create a new Device
   if (index == -1)
   {
     DeviceInfo newDevice = {
@@ -88,7 +92,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
     
     printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMAC is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\n", newDevice.deviceTpye, newDevice.deviceMAC.c_str(), newDevice.onOff, newDevice.wifiMeshDeviceId);
     printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount);
-    
+
     SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
   }
   else
@@ -96,6 +100,13 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
     printf("Decive [%u] had been existed, resend success message :\n", wifiMeshDeviceId);
     SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
   }
+  
+  // Software Serial send out register
+  doc.remove("To");
+
+  serializeJsonPretty(doc, mySerial);
+  Serial.println("Software Serial send out json : ");
+  serializeJsonPretty(doc, Serial);
 }
 
 void SendoutRegisteredSuccessMessage(unsigned int target)
@@ -109,35 +120,6 @@ void SendoutRegisteredSuccessMessage(unsigned int target)
 }
 
 /*
-void CheckIrrigation()
-{
-  if (lastSoil > triggerIrrigation)
-  {
-    String str = GetCharacteristicMessage(characteristicUUID_Irrigation);
-    
-    if(str == "Off" || str == "")
-    {
-      Serial.println("Set Irrigation : On");
-      SetCharacteristicMessage(characteristicUUID_Irrigation, "On");
-    }
-  }
-}
-*/
-/*
-void SoftwareSerialSendout()
-{
-  StaticJsonDocument<48> doc;
-  
-  doc["DeviceName"] = name;
-  lastSoil = lastSoilString.toInt();
-  doc["SoilHumidity"] = lastSoil;
-   
-  serializeJsonPretty(doc, mySerial);
-
-  Serial.print("Send out json : ");
-  serializeJsonPretty(doc, Serial);
-}
-
 void SoftwareSerialReceive()
 {
   if(!mySerial.available()) return;
