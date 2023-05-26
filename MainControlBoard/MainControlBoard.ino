@@ -52,11 +52,11 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
     return;
   }
 
-  unsigned int targetDevice = doc["To"].is<unsigned int>();
-  Serial.print("Target is [");
+  unsigned int targetDevice = doc["To"].as<unsigned int>();
+  Serial.print("Message Target is [");
   Serial.print(targetDevice);
   
-  if (targetDevice != 1)
+  if (targetDevice != 0)
   {
     Serial.println("], is not me");
     return;
@@ -68,8 +68,8 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
 
   if (!isRegisterMessage && index != -1)
   {
-    deviceInfo[index].value = doc["Value"];
-    printf("Update value is [%d]", deviceInfo[index].value);
+    deviceInfo[index].value = doc["Value"].as<int>();
+    printf("Update value is [%d]\n", deviceInfo[index].value);
     // SEND OUT !
     return;
   }
@@ -77,28 +77,23 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
   // Create a new  Device
   if (index == -1)
   {
-    int deviceTpye = doc["DeviceTpye"];
-    const char* mac = doc["DeviceMAC"];
-    int onOff = doc["Register"];
-
-    printf("Register a new device\nDeviceTpye is [%d]\nDeviceMAC is [%s]\nRegistered : [%d]\n", deviceTpye, mac, onOff);
-
     DeviceInfo newDevice = {
-        .deviceMAC = String(mac),
-        .deviceTpye = deviceTpye,
-        .onOff = onOff,
+        .deviceMAC = doc["DeviceMAC"].as<String>(),
+        .deviceTpye = doc["DeviceTpye"].as<int>(),
+        .onOff = doc["Register"].as<int>(),
         .value = 0,
         .wifiMeshDeviceId = wifiMeshDeviceId
     };
     deviceInfo[currentRegistedDeviceCount++] = newDevice;
     
+    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMAC is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\n", newDevice.deviceTpye, newDevice.deviceMAC.c_str(), newDevice.onOff, newDevice.wifiMeshDeviceId);
     printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount);
     
     SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
   }
   else
   {
-    printf("Decive [%d] had been existed", wifiMeshDeviceId);
+    printf("Decive [%u] had been existed, resend success message :\n", wifiMeshDeviceId);
     SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
   }
 }
