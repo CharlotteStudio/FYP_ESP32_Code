@@ -4,6 +4,7 @@
 #include "Button_Header.h"
 #include "Info_Header.h"
 #include "ArduinoJson.h"
+#include "MacAddress_Header.h"
 
 #define waitingTime_switchConnect 60000
 #define waitingTime_sendRegisteredMessage 5000
@@ -11,7 +12,7 @@
 static unsigned long nextTime_switchConnect = 0;
 static unsigned long nextTime_sendRegisteredMessage = 0;
 
-static bool tryConnectBLE = false;
+static bool tryConnectBLE = true;
 static bool isRegistered = false;
 
 bool IsConnected() { return isConnectedMeshNetwork || isConnectedBLEService(); }
@@ -103,7 +104,7 @@ String CreateRegisteredMessage()
   StaticJsonDocument<jsonSerializeRegisterSize> doc;
   doc["To"] = 0;
   doc["DeviceTpye"] = DeviceTpye;
-  doc["DeviceMAC"] = "AA";
+  doc["DeviceMAC"] = GetMacAddressString();
   doc["Register"] = 1;
   String str;
   serializeJsonPretty(doc, str);
@@ -123,7 +124,7 @@ void ReceivedWiFiMeshCallback(unsigned int from, String& json)
     return;
   }
 
-  unsigned int targetDevice = doc["To"].is<unsigned int>();
+  unsigned int targetDevice = doc["To"].as<unsigned int>();
   Serial.print("Target is [");
   Serial.print(targetDevice);
   if (targetDevice == GetMyNodeId())
