@@ -5,7 +5,6 @@
 #include "WiFiMesh_Header.h"
 #include <ArduinoJson.h>
 
-//void SoftwareSerialReceive();
 void ReceivedMessageFormWiFiMesh(unsigned int, String&);
 void SendoutRegisteredSuccessMessage(unsigned int);
 
@@ -21,7 +20,7 @@ void setup()
 
 void loop()
 {
-  //SoftwareSerialReceive();
+  SoftwareSerialReceiveAndSendout();
   UpdateWifiMesh();
   /*
   String currentSoilValue = GetCharacteristicMessage(characteristicUUID_SoilSensor);
@@ -35,7 +34,7 @@ void loop()
   delay(50);
 }
 
-void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
+void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
 {
   StaticJsonDocument<jsonDeserializeSize> doc;
 
@@ -60,7 +59,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
   Serial.println("], is me");
   
   bool isRegisterMessage = doc["Register"].is<int>();
-  int index = GetExistedDeviceInt(wifiMeshDeviceId);
+  int index = GetExistedDeviceInt(wifiMeshNodeId);
 
   // Software Serial send out value
   if (!isRegisterMessage && index != -1)
@@ -86,19 +85,19 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshDeviceId, String &json)
         .deviceTpye = doc["DeviceTpye"].as<int>(),
         .onOff = doc["Register"].as<int>(),
         .value = 0,
-        .wifiMeshDeviceId = wifiMeshDeviceId
+        .wifiMeshNodeId = wifiMeshNodeId
     };
     deviceInfo[currentRegistedDeviceCount++] = newDevice;
     
-    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMAC is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\n", newDevice.deviceTpye, newDevice.deviceMAC.c_str(), newDevice.onOff, newDevice.wifiMeshDeviceId);
+    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMAC is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\n", newDevice.deviceTpye, newDevice.deviceMAC.c_str(), newDevice.onOff, newDevice.wifiMeshNodeId);
     printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount);
 
-    SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
+    SendoutRegisteredSuccessMessage(wifiMeshNodeId);
   }
   else
   {
-    printf("Decive [%u] had been existed, resend success message :\n", wifiMeshDeviceId);
-    SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
+    printf("Decive [%u] had been existed, resend success message :\n", wifiMeshNodeId);
+    SendoutRegisteredSuccessMessage(wifiMeshNodeId);
   }
   
   // Software Serial send out register
@@ -120,12 +119,11 @@ void SendoutRegisteredSuccessMessage(unsigned int target)
   SendoutWifiMesh(str);
 }
 
-/*
-void SoftwareSerialReceive()
+void SoftwareSerialReceiveAndSendout()
 {
   if(!mySerial.available()) return;
   
-  StaticJsonDocument<jsonDeserializeSize> doc;
+  StaticJsonDocument<jsonSerializeAWSDataSize> doc;
 
   DeserializationError error = deserializeJson(doc, mySerial);
   if (error) {
@@ -134,45 +132,22 @@ void SoftwareSerialReceive()
     return;
   }
 
-  String targetName = String(doc["DeviceName"].as<const char*>());
-  Serial.print("Received Json, ");
-  Serial.print("Target Device is : ");
-  Serial.println(targetName);
+  String mac_address = doc["DeviceMAC"].as<String>();
 
-  int setHumidity = -1;
-  int setActive   = -1;
-  
-  if(doc["SetHumidity"].is<int16_t>())
+  if (!IsExistedDevice(mac_address))
   {
-    setHumidity = doc["SetHumidity"];
-  }
-  
-  if(doc["SetActive"].is<int16_t>())
-  {
-    setActive = doc["SetActive"];
+    printf("Don't find the device by address [%s]\n", mac_address.c_str());
+    return;
   }
 
-  if(setHumidity != -1)
-  {
-    Serial.print("Set Humidity of Trigger Irrigation to ");
-    Serial.println(setHumidity);
-    triggerIrrigation = setHumidity;
-  }
+  // Send out to WiFi Mesh
+  StaticJsonDocument<jsonSerializeDataSize> sendoutDoc;
 
-  if(setActive != -1)
-  {
-    Serial.print("Set Irrigation : ");
-    if (setActive == 0)
-    {
-      Serial.println("Off");
-      SetCharacteristicMessage(characteristicUUID_Irrigation, "Off");
-    }
-      
-    if (setActive == 1)
-    {
-      SetCharacteristicMessage(characteristicUUID_Irrigation, "On");
-      Serial.println("On");
-    }
-  }
+  sendoutDoc["To"] = GetWiFiMeshNodeIdByMacAddress(mac_address);
+  sendoutDoc["ActiveState"] = doc["ActiveState"];
+  //doc["OwnerDevice"] = 
+  //doc["ActiveValue"] = 
+  String str;
+  serializeJsonPretty(sendoutDoc, str);
+  SendoutWifiMesh(str);
 }
-*/

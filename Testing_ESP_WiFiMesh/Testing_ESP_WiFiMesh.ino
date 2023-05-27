@@ -60,7 +60,7 @@ void SendoutRegisteredSuccessMessage(unsigned int target)
   SendoutWifiMesh(str);
 }
 
-void DeserializateJson(unsigned int wifiMeshDeviceId, String json)
+void DeserializateJson(unsigned int wifiMeshNodeId, String json)
 {
   StaticJsonDocument<jsonDeserializeSize> doc;
 
@@ -85,7 +85,7 @@ void DeserializateJson(unsigned int wifiMeshDeviceId, String json)
   Serial.println("], is me");
 
   bool isRegisterMessage = doc["Register"].is<int>();
-  int index = GetExistedDeviceInt(wifiMeshDeviceId);
+  int index = GetExistedDeviceInt(wifiMeshNodeId);
 
   if (!isRegisterMessage && index != -1)
   {
@@ -101,19 +101,19 @@ void DeserializateJson(unsigned int wifiMeshDeviceId, String json)
         .deviceTpye = doc["DeviceTpye"].as<int>(),
         .onOff = doc["Register"].as<int>(),
         .value = 0,
-        .wifiMeshDeviceId = wifiMeshDeviceId
+        .wifiMeshNodeId = wifiMeshNodeId
     };
     deviceInfo[currentRegistedDeviceCount++] = newDevice;
     
-    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMAC is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\n", newDevice.deviceTpye, newDevice.deviceMAC.c_str(), newDevice.onOff, newDevice.wifiMeshDeviceId);
+    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMAC is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\n", newDevice.deviceTpye, newDevice.deviceMAC.c_str(), newDevice.onOff, newDevice.wifiMeshNodeId);
     printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount);
     
-    SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
+    SendoutRegisteredSuccessMessage(wifiMeshNodeId);
   }
   else
   {
-    printf("Decive [%u] had been existed", wifiMeshDeviceId);
-    //SendoutRegisteredSuccessMessage(wifiMeshDeviceId);
+    printf("Decive [%u] had been existed", wifiMeshNodeId);
+    //SendoutRegisteredSuccessMessage(wifiMeshNodeId);
   }
 }
 
