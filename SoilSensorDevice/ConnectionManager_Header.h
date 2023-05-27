@@ -5,6 +5,7 @@
 #include "Info_Header.h"
 #include "ArduinoJson.h"
 #include "MacAddress_Header.h"
+#include "SoilSensor_Header.h"
 
 #define waitingTime_switchConnect 60000
 #define waitingTime_sendRegisteredMessage 5000
@@ -145,6 +146,20 @@ void ReceivedWiFiMeshCallback(unsigned int from, String& json)
         isRegistered = false;
       }
     }
+
+    bool isSetUpdateSpeedMessage = doc["SetUpdateSpeed"].is<int>();
+    if (isSetUpdateSpeedMessage)
+    {
+      int updateSpeed = doc["SetUpdateSpeed"].as<int>();
+      if (updateSpeed < 1)
+      {
+        waitingTime_soilSensor = 1000;
+      }
+      else
+      {
+        waitingTime_soilSensor = updateSpeed * 1000;
+      }
+    }
   }
   else
   {
@@ -171,7 +186,6 @@ void TrySendDataMessage(int value)
 String CreateValueDataMessage(int value)
 {
   StaticJsonDocument<jsonSerializeDataSize> doc;
-  doc["To"] = 0;
   doc["Value"] = value;
   String str;
   serializeJsonPretty(doc, str);

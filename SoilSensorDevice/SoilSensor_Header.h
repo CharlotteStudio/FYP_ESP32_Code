@@ -1,6 +1,6 @@
 #define Soil_Sensor_pin 36
 
-static unsigned long waitingTime_soilSensor = 5000;
+static unsigned long waitingTime_soilSensor = 10000;
 static unsigned long nextTime_soilSensor = 0;
 
 int currentSoilSensorValue = 0;
