@@ -3,7 +3,6 @@
 static char* serviceUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
 static char* characteristicUUID_SoilSensor = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
 static char* characteristicUUID_WaterPump  = "beb5483e-36e1-4688-b7f5-ea07361b26a7";
-//static char* deviceName = "Soil_Sensor";
 static char* deviceName = "Water_Pump";
 
 #define scanDuration 3               // scan BLE time
