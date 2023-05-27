@@ -144,9 +144,12 @@ void SoftwareSerialReceiveAndSendout()
   StaticJsonDocument<jsonSerializeDataSize> sendoutDoc;
 
   sendoutDoc["To"] = GetWiFiMeshNodeIdByMacAddress(mac_address);
-  sendoutDoc["ActiveState"] = doc["ActiveState"];
-  //doc["OwnerDevice"] = 
-  //doc["ActiveValue"] = 
+  
+  if (doc["ActiveState"].is<int>())    sendoutDoc["ActiveState"]    = doc["ActiveState"];
+  if (doc["SetUpdateSpeed"].is<int>()) sendoutDoc["SetUpdateSpeed"] = doc["SetUpdateSpeed"];
+  if (doc["OwnerDevice"].is<int>())    sendoutDoc["OwnerDevice"]    = doc["OwnerDevice"];
+  if (doc["ActiveValue"].is<int>())    sendoutDoc["ActiveValue"]    = doc["ActiveValue"];
+
   String str;
   serializeJsonPretty(sendoutDoc, str);
   SendoutWifiMesh(str);
