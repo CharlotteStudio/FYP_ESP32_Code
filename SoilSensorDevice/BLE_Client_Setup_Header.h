@@ -1,4 +1,3 @@
-// Version 0.1.0, Release at 20230524
 #include "BLE_Client_Header.h"
 
 static char* serviceUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";

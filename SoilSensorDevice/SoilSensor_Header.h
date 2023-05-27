@@ -1,4 +1,3 @@
-// Version 0.1.0, Release at 20230524
 #define Soil_Sensor_pin 26
 
 #define waitingTime_soilSensor 5000

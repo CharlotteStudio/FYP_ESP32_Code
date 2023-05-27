@@ -1,4 +1,3 @@
-// Version 0.1.0, Release at 20230524
 #include "BLE_Client_Setup_Header.h"
 #include "WiFiMesh_Header.h"
 #include "LEDLighting_Header.h"

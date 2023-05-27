@@ -1,5 +1,3 @@
-// Version 0.1.0, Release at 20230524
-
 #include "ConnectionManager_Header.h"
 #include "SoilSensor_Header.h"
 
