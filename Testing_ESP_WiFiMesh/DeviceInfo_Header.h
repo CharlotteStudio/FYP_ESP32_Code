@@ -3,7 +3,7 @@
 typedef struct DeviceInfo DeviceInfo;
 struct DeviceInfo
 {
-  String deviceMAC;
+  String deviceMac;
   int deviceTpye;
   int onOff;
   int value;
@@ -32,7 +32,7 @@ unsigned int GetWiFiMeshNodeIdByMacAddress(String mac)
 {
   for(int i = 0; i < maximum_device_count; i++)
   {
-    if (deviceInfo[i].deviceMAC == mac)
+    if (deviceInfo[i].deviceMac == mac)
       return deviceInfo[i].wifiMeshNodeId;
   }
   return 0;

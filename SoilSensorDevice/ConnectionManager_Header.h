@@ -104,7 +104,7 @@ String CreateRegisteredMessage()
   StaticJsonDocument<jsonSerializeRegisterSize> doc;
   doc["To"] = 0;
   doc["DeviceTpye"] = DeviceTpye;
-  doc["DeviceMAC"] = GetMacAddressString();
+  doc["DeviceMac"] = GetMacAddressString();
   doc["Register"] = 1;
   String str;
   serializeJsonPretty(doc, str);

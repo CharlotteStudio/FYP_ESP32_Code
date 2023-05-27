@@ -75,7 +75,7 @@ String CreateJson()
 
   if (isRegister)
   {
-    doc["UserName"] = "TestingTesting@gmail";
+    doc["UserName"] = "TestingTesting@gmail.com";
     doc["Password"] = "123456";
     doc["DeviceType"] = 1;
     doc["DeviceMac"] = str_mac;
@@ -84,7 +84,7 @@ String CreateJson()
   }
   else
   {
-    doc["UserName"] = "TestingTesting@gmail";
+    doc["UserName"] = "TestingTesting@gmail.com";
     doc["Password"] = "123456";
     doc["DeviceType"] = 1;
     doc["DeviceMac"] = str_mac;

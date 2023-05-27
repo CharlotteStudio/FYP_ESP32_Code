@@ -68,7 +68,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
     printf("Update value is [%d]\n", deviceInfo[index].value);
     
     doc["DeviceTpye"] = deviceInfo[index].deviceTpye;
-    doc["DeviceMAC"] = deviceInfo[index].deviceMAC;
+    doc["DeviceMac"] = deviceInfo[index].deviceMac;
     
     serializeJsonPretty(doc, mySerial);
     Serial.println("Software Serial send out json : ");
@@ -81,7 +81,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
   if (index == -1)
   {
     DeviceInfo newDevice = {
-        .deviceMAC = doc["DeviceMAC"].as<String>(),
+        .deviceMac = doc["DeviceMac"].as<String>(),
         .deviceTpye = doc["DeviceTpye"].as<int>(),
         .onOff = doc["Register"].as<int>(),
         .value = 0,
@@ -89,7 +89,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
     };
     deviceInfo[currentRegistedDeviceCount++] = newDevice;
     
-    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMAC is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\n", newDevice.deviceTpye, newDevice.deviceMAC.c_str(), newDevice.onOff, newDevice.wifiMeshNodeId);
+    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMac is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\n", newDevice.deviceTpye, newDevice.deviceMac.c_str(), newDevice.onOff, newDevice.wifiMeshNodeId);
     printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount);
 
     SendoutRegisteredSuccessMessage(wifiMeshNodeId);
@@ -132,7 +132,7 @@ void SoftwareSerialReceiveAndSendout()
     return;
   }
 
-  String mac_address = doc["DeviceMAC"].as<String>();
+  String mac_address = doc["DeviceMac"].as<String>();
 
   if (!IsExistedDevice(mac_address))
   {

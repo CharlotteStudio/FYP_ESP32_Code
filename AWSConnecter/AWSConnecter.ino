@@ -78,7 +78,7 @@ String HandleReceivedMessageFromSoftwareSerial()
     return "";
   }
 
-  printf("DeviceTpye is [%d]\nDeviceMAC is  [%s]\n", doc["DeviceTpye"].as<int>(), doc["DeviceMAC"].as<String>().c_str());
+  printf("DeviceTpye is [%d]\nDeviceMac is  [%s]\n", doc["DeviceTpye"].as<int>(), doc["DeviceMac"].as<String>().c_str());
  
   if (doc["Register"].is<int>())
   {
