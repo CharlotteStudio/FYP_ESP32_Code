@@ -37,9 +37,7 @@ void setup()
 
   ConnectWiFi(30);
   
-#ifdef ESP8266
   InitNTPTimer();
-#endif
 
   TryConnectAWSService(10);
 
@@ -47,6 +45,7 @@ void setup()
   client.setCallback(AWSReceivedMessageLog);
   
   WiFi.macAddress(mac_Address);
+  randomSeed(time(NULL));
 }
 
 void loop()
@@ -89,7 +88,7 @@ String CreateJson()
     doc["DeviceType"] = 1;
     doc["DeviceMac"] = str_mac;
     doc["Time"] = (unsigned long) time(NULL);
-    doc["Value"] = 1000;
+    doc["Value"] = random(2700);
     serializeJsonPretty(doc, str);
   }
   isRegister = !isRegister;
@@ -111,7 +110,4 @@ void AWSReceivedMessageLog(char* topic, byte* payload, unsigned int length)
   
   serializeJsonPretty(doc, Serial);
   Serial.println();
-  
-  const char* message = doc["message"];
-  Serial.println(message);
 }
