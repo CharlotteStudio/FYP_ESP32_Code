@@ -1,19 +1,18 @@
-#define Soil_Sensor_pin 26
+#define Soil_Sensor_pin 36
 
-#define waitingTime_soilSensor 5000
-
+static unsigned long waitingTime_soilSensor = 5000;
 static unsigned long nextTime_soilSensor = 0;
 
-static int currentSoilSensorValue = 0;
-static int lastSoilSensorValue    = 0;
+int currentSoilSensorValue = 0;
 
-void TryGetSoilSensorValue()
+bool TryGetSoilSensorValue()
 {
   if(millis() > nextTime_soilSensor)
   {
     nextTime_soilSensor = millis() + waitingTime_soilSensor;
     currentSoilSensorValue = analogRead(Soil_Sensor_pin);
-    Serial.print("Get the soil value : ");
-    Serial.println(currentSoilSensorValue);
+    printf("Get the soil value : [%d]\n", currentSoilSensorValue);
+    return true;
   }
+  return false;
 }

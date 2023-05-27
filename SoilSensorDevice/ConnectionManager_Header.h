@@ -154,7 +154,7 @@ void ReceivedWiFiMeshCallback(unsigned int from, String& json)
 
 void TrySendDataMessage(int value)
 {
-  if (!IsConnected() || isRegistered) return;
+  if (!IsConnected() || !isRegistered) return;
 
   if (isConnectedBLEService())
   {

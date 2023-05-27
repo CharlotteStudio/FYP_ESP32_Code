@@ -12,19 +12,15 @@ void setup()
 void loop()
 {
   CheckButtonOnClick(0, pin_button);
-  TryGetSoilSensorValue();
+  bool isGotValue = TryGetSoilSensorValue();
 
   if (!IsConnected()) { TryConnection(); return; }
 
+  if (isConnectedMeshNetwork) UpdateWifiMesh();
+  
   if (!isRegistered) { TrySendRegisterMessage(); return; }
 
-  if (currentSoilSensorValue != lastSoilSensorValue)
-  {
-    TrySendDataMessage(currentSoilSensorValue);
-    lastSoilSensorValue = currentSoilSensorValue;
-  }
-
-  UpdateWifiMesh();
+  if (isGotValue) TrySendDataMessage(currentSoilSensorValue);
 
   delay(50);
 }
