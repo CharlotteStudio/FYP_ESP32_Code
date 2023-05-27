@@ -44,13 +44,22 @@
 */
 
 
-// AWS ⇒ Main Control Board
+// AWS ⇒ Main Control Board (Set Active)
 /*
 {
   "DeviceMac":String
   "OwnerDevice":string
   "ActiveValue":int
-  "ActiveState":bool
+  "ActiveState":int
+}
+*/
+
+// AWS ⇒ Main Control Board (Set Update speed)
+// Soil mac address : 120:33:132:224:254:84
+/*
+{
+  "DeviceMac":String,
+  "SetUpdateSpeed":int
 }
 */
 
@@ -58,6 +67,10 @@
 /*
 {
   "To":1234567890,
-  "ActiveState":bool
+  "ActiveState":int
+}
+{
+  "To":1234567890,
+  "SetUpdateSpeed":int
 }
 */
