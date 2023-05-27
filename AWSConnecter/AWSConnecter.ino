@@ -53,6 +53,12 @@ void TryConnection()
   if (!WiFi.isConnected())
   {
     ConnectWiFi(30);
+
+    if (WiFi.isConnected())
+    {
+      InitNTPTimer();
+      SoftwareSerialSendout("Connected WiFi");
+    }
   }
   else
   {
@@ -60,6 +66,7 @@ void TryConnection()
     {
       TryConnectAWSService(10);
       client.setCallback(AWSReceivedMessageLog);
+      SoftwareSerialSendout("Connected AWS");
     }
   }
 }
@@ -96,6 +103,16 @@ String HandleReceivedMessageFromSoftwareSerial()
   String str;
   serializeJsonPretty(doc, str);
   return str;
+}
+
+void SoftwareSerialSendout(String str)
+{
+  StaticJsonDocument<jsonSerializeRegisterSize> doc;
+
+  doc["message"] = str;
+  Serial.println("Send out to SoftwareSerial");
+  serializeJsonPretty(doc, Serial);
+  Serial.println();
 }
 
 /* Received message from IoT Core */
