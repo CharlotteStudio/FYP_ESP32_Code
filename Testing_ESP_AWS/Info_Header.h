@@ -14,7 +14,7 @@
 5 : Lighting
 */
 
-// To Main Control Board Register
+// Device ⇒ Main Control Board Register
 /*
 {
   "To":1234567890,
@@ -24,7 +24,7 @@
 }
 */
 
-// To Main Control Board Value
+// Device ⇒ Main Control Board Value
 /*
 {
   "To":1234567890,
@@ -32,7 +32,7 @@
 }
 */
 
-// Main Control Board To AWS Register
+// Main Control Board ⇒ AWS Register
 /*
 {
   "UserName":"TestingTesting@gmail.com",
@@ -47,10 +47,17 @@
 // AWS ⇒ Main Control Board
 /*
 {
-  "DeviceType":int,
-  "DeviceMac":long/int
+  "DeviceMac":String
   "OwnerDevice":string
   "ActiveValue":int
+  "ActiveState":bool
+}
+*/
+
+// Main Control Board ⇒ Device
+/*
+{
+  "To":1234567890,
   "ActiveState":bool
 }
 */
