@@ -110,9 +110,12 @@ void SoftwareSerialSendout(String str)
   StaticJsonDocument<jsonSerializeRegisterSize> doc;
 
   doc["message"] = str;
-  Serial.println("Send out to SoftwareSerial");
+  Serial.println("Send out to SoftwareSerial :");
   serializeJsonPretty(doc, Serial);
   Serial.println();
+  
+  // SoftwareSerialSendout
+  serializeJsonPretty(doc, mySerial);
 }
 
 /* Received message from IoT Core */
@@ -128,10 +131,10 @@ void AWSReceivedMessageLog(char* topic, byte* payload, unsigned int length)
   
   deserializeJson(doc, payload);
   
-  // SoftwareSerialSendout
-  serializeJsonPretty(doc, mySerial);
-  
   Serial.println("Send out to SoftwareSerial");
   serializeJsonPretty(doc, Serial);
   Serial.println();
+
+  // SoftwareSerialSendout
+  serializeJsonPretty(doc, mySerial);
 }
