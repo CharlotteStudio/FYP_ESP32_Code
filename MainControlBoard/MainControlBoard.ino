@@ -8,6 +8,8 @@
 void ReceivedMessageFormWiFiMesh(unsigned int, String&);
 void SendoutRegisteredSuccessMessage(unsigned int);
 
+static bool isConnectedAWS = false;
+
 void setup()
 {
   SetUpSerial();
@@ -21,6 +23,9 @@ void setup()
 void loop()
 {
   SoftwareSerialReceiveAndSendout();
+
+  if (!isConnectedAWS) { delay(50); return; }
+  
   UpdateWifiMesh();
   /*
   String currentSoilValue = GetCharacteristicMessage(characteristicUUID_SoilSensor);
@@ -132,6 +137,22 @@ void SoftwareSerialReceiveAndSendout()
     return;
   }
 
+  bool isMessage = doc["message"].is<String>();
+  if (isMessage)
+  {
+    Serial.println("Get a message :");
+    serializeJsonPretty(doc, Serial);
+    Serial.println("");
+    String command = doc["message"].as<String>();
+
+    if (command.equalsIgnoreCase("Connected AWS"))
+    {
+      isConnectedAWS = true;
+      Serial.println("Is connected AWS Server.");
+    }
+    return;
+  }
+  
   String mac_address = doc["DeviceMac"].as<String>();
 
   if (!IsExistedDevice(mac_address))
