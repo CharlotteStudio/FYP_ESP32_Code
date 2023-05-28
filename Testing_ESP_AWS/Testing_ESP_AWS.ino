@@ -1,14 +1,12 @@
 /*
  * Compatible ESP32 & ESP8266
  */
-#include "WiFi_MultiConnect_Header.h"
 #include "AWS_IoTCore_Header.h"
 #include "Button_Header.h"
 #include "Info_Header.h"
-#include <ArduinoJson.h>
-#ifdef ESP8266
+#include "WiFi_MultiConnect_Header.h"
 #include "WiFi_NTPTimer_Header.h"
-#endif
+#include <ArduinoJson.h>
 
 #define wifi_ssid "Cabala"
 #define wifi_password "21424861"
