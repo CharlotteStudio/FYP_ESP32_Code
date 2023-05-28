@@ -1,8 +1,8 @@
-#define relay_pin 36
+#define relay_pin 26
 #define active_relay_button 22
 
 static bool isRelayOn = false;
-static unsigned long activeTime_waterPump    = 10000;
+static unsigned long activeTime_waterPump    = 30000;
 static unsigned long nextTime_closeWaterPump = 0;
 
 void SetUpWaterPump()
@@ -20,16 +20,20 @@ void ActiveWaterPump()
   isRelayOn = true;
   nextTime_closeWaterPump = millis() + activeTime_waterPump;
   digitalWrite(relay_pin, !isRelayOn);
-  int t = activeTime_waterPump / 1000;
-  printf("Set active water pump at [%d] second", t);
+  int activeTime = activeTime_waterPump / 1000;
+  printf("Set active water pump at [%d] second\n", activeTime);
 }
 
-void CheckingCloseWaterPump()
+void CloseWaterPump()
+{
+  isRelayOn = false;
+  digitalWrite(relay_pin, !isRelayOn);
+  printf("Close water pump\n");
+}
+
+void AutoCloseWaterPump()
 {
   if (!isRelayOn) return;
   if (millis() < nextTime_closeWaterPump) return;
-
-  isRelayOn = false;
-  digitalWrite(relay_pin, !isRelayOn);
-  printf("Close water pump");
+  CloseWaterPump();
 }

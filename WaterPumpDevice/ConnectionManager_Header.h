@@ -150,7 +150,17 @@ void ReceivedWiFiMeshCallback(unsigned int from, String& json)
     bool isSetActiveWaterPump = doc["ActiveState"].is<int>();
     if (isSetActiveWaterPump)
     {
-      ActiveWaterPump();
+      int activeCode = doc["ActiveState"].as<int>();
+      
+      if (activeCode != 1 && activeCode != 0)
+      {
+        printf("[%d] is not command code.\n", activeCode);
+        return;
+      }
+      
+      printf("command code is [%d]\n", activeCode);
+      if (activeCode == 1) ActiveWaterPump();
+      if (activeCode == 0) CloseWaterPump();
     }
   }
   else
