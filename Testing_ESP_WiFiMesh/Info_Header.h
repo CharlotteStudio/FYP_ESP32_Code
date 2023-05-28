@@ -45,11 +45,17 @@
 
 
 // AWS ⇒ Main Control Board (Set Active)
+// Water pump mac address : 120:33:132:225:22:76
+// Water pump mac address (new A) : 176:178:28:167:225:96
 /*
 {
   "DeviceMac":String
   "OwnerDevice":string
   "ActiveValue":int
+  "ActiveState":int
+}
+{
+  "DeviceMac":String
   "ActiveState":int
 }
 */
