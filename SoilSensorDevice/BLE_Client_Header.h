@@ -126,6 +126,7 @@ void SetUpBLEDevices(char* deviceName)
 void RegisterCharacteristic(char* characteristic)
 {
   targetCharacteristicArray[registeredCharacteristicCount] = BLEUUID(characteristic);
+  printf("Register Characteristic Success : [%s]\n", characteristic);
   registeredCharacteristicCount++;
 }
 
@@ -197,6 +198,18 @@ bool GetRemoteService()
     return false;
   }
   Serial.println("Found Service successful.");
+
+  std::map<std::string, BLERemoteCharacteristic*>* characteristicMap = remoteService->getCharacteristics();
+  int characteristicCount = characteristicMap->size();
+  printf("The Remote Service Characteristic Count is [%d]\n", characteristicCount);
+
+  for (auto it = characteristicMap->begin(); it != characteristicMap->end(); ++it)
+  {
+    const std::string& key = it->first;
+    printf("The Characteristic is [%s]\n", key.c_str());
+  }
+  printf("\n");
+  
   return true;
 }
 
@@ -204,10 +217,12 @@ void RegisterRemoteCharacteristic()
 {
   for (int i = 0; i < maxCharacteristicCount; i++)
   {
+    printf("Try get the remote Service : [%s]\n", targetCharacteristicArray[i].toString().c_str());
     remoteCharacteristicArray[i] = remoteService->getCharacteristic(targetCharacteristicArray[i]);
 
     if (remoteCharacteristicArray[i] == nullptr)
     {
+      printf("The Target Characteristic Array [%d] is null !\n", i);
     } 
     else
     {
