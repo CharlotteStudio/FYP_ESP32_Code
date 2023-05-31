@@ -10,6 +10,23 @@ void SendoutRegisteredSuccessMessage(unsigned int);
 
 static bool isConnectedAWS = false;
 
+void OnTargetChange(String str)
+{
+  Serial.print("Message Target is [");
+  Serial.print(str);
+  
+  if (!str.equals("0"))
+  {
+    Serial.println("], is not me");
+    return;
+  }
+  Serial.println("], is me");
+
+  String json = GetCharacteristicMessage(characteristicUUID_Message);
+  ReceivedMessageFormBLE(json);
+}
+
+
 void setup()
 {
   SetUpSerial();
@@ -18,6 +35,8 @@ void setup()
   SetUpBLE();
   SetUpReceivedMessageCallback(&ReceivedMessageFormWiFiMesh);
   SetUpWifiMesh();
+
+  SetUpOnCharacteristicChangeCallback(OnTargetChange, characteristicUUID_To);
 }
 
 void loop()
@@ -37,6 +56,68 @@ void loop()
   }
   */
   delay(50);
+}
+
+void ReceivedMessageFormBLE(String &json)
+{
+  if(currentChannelIndex >= maxCharacteristicCount)
+  {
+    Serial.println("BLE Channel is full, please using WiFi-Mesh.");
+    // ToDo send stop message
+    return;
+  }
+  
+  StaticJsonDocument<jsonDeserializeSize> doc;
+
+  DeserializationError error = deserializeJson(doc, json);
+
+  if (error)
+  {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
+
+  String mac = doc["DeviceMac"].as<String>();
+  
+  if (!IsExistedDevice(mac))
+  {
+    DeviceInfo newDevice = {
+        .deviceMac = mac,
+        .deviceTpye = doc["DeviceTpye"].as<int>(),
+        .onOff = doc["Register"].as<int>(),
+        .value = 0,
+        .wifiMeshNodeId = 0,
+        .bleChannel = currentChannelIndex
+    };
+    deviceInfo[currentRegistedDeviceCount++] = newDevice;
+    
+    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMac is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\nbleChannel is [%d]\n", newDevice.deviceTpye, newDevice.deviceMac.c_str(), newDevice.onOff, newDevice.wifiMeshNodeId, newDevice.bleChannel);
+    printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount);
+
+    SendoutRegisteredSuccessMessage_BLE(mac, newDevice.bleChannel);
+    currentChannelIndex++;
+  }
+  else
+  {
+    printf("Decive [%s] had been existed, resend success message :\n", mac.c_str());
+    SendoutRegisteredSuccessMessage_BLE(mac, deviceInfo[GetExistedDeviceInt(mac)].bleChannel);
+  }
+  
+  // Software Serial send out register
+  doc.remove("To");
+
+  serializeJsonPretty(doc, mySerial);
+  Serial.println("Software Serial send out json : ");
+  serializeJsonPretty(doc, Serial);
+  Serial.println("");
+}
+
+void SendoutRegisteredSuccessMessage_BLE(String mac, int channelNumber)
+{
+  Serial.println("Send out registered success at BLE");
+  SetCharacteristicMessage(characteristicUUID_To, mac);
+  SetCharacteristicMessage(characteristicUUID_Message, String(currentChannelIndex));
 }
 
 void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
@@ -90,7 +171,8 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
         .deviceTpye = doc["DeviceTpye"].as<int>(),
         .onOff = doc["Register"].as<int>(),
         .value = 0,
-        .wifiMeshNodeId = wifiMeshNodeId
+        .wifiMeshNodeId = wifiMeshNodeId,
+        .bleChannel = -1
     };
     deviceInfo[currentRegistedDeviceCount++] = newDevice;
     
