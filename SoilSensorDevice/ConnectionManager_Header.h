@@ -13,7 +13,7 @@
 static unsigned long nextTime_switchConnect = 0;
 static unsigned long nextTime_sendRegisteredMessage = 0;
 
-static bool tryConnectBLE = true;
+static bool tryConnectBLE = false;
 static bool isRegistered = false;
 
 bool IsConnected() { return isConnectedMeshNetwork || isConnectedBLEService(); }
@@ -62,7 +62,7 @@ void TryConnection()
   if (tryConnectBLE)
   {
     Serial.println("Try connect BLE ...");
-    //ScanBLEAndConnect();
+    ScanBLEAndConnect();
   } 
   else
   {
@@ -82,19 +82,25 @@ void SwitchConnection()
 
 void TrySendRegisterMessage()
 {
-  if (!IsConnected() || isRegistered) return;
+  if (!IsConnected() || isRegistered)             return;
+  if (millis() < nextTime_sendRegisteredMessage)  return;
+  nextTime_sendRegisteredMessage = millis() + waitingTime_sendRegisteredMessage;
 
   if (isConnectedBLEService())
   {
-    Serial.println("To be set up");
+    String toDevice = ReceivedBLEMessage(characteristicUUID_To);
+    String message  = ReceivedBLEMessage(characteristicUUID_Message);
+    if (!toDevice.equals(ble_empty) || !message.equals(ble_empty)) return;
+    
+    String json = CreateRegisteredMessage();
+    printf("Send out Register message by BLE.\n%s\n", json.c_str());
+    SendoutBLEMessage(characteristicUUID_Message, json);
+    SendoutBLEMessage(characteristicUUID_To, "0");
   }
 
   if (isConnectedMeshNetwork)
   {
-    if (millis() < nextTime_sendRegisteredMessage) return;
-  
-    nextTime_sendRegisteredMessage = millis() + waitingTime_sendRegisteredMessage;
-
+    Serial.println("Send out Register message by WiFi-Mesh.");
     String json = CreateRegisteredMessage();
     SendoutWifiMesh(json);
   }
@@ -173,7 +179,7 @@ void TrySendDataMessage(int value)
 
   if (isConnectedBLEService())
   {
-    SendoutBLEMessage(characteristicUUID_SoilSensor, String(value));
+    //SendoutBLEMessage(characteristicUUID_SoilSensor, String(value));
   }
 
   if (isConnectedMeshNetwork)

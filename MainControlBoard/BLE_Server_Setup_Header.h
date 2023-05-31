@@ -30,12 +30,12 @@ void changedConnectionCallback()
 
 void BLEConnectedCallback()
 {
-  Serial.println("A BLE Device Connected.");
+  //Serial.println("A BLE Device Connected.");
 }
 
 void BLEDisconnectedCallback()
 {
-  Serial.println("A BLE Device Disconnected.");
+  //Serial.println("A BLE Device Disconnected.");
 }
 
 void SetUpBLE()
