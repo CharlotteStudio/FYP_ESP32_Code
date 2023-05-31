@@ -33,14 +33,25 @@ static BLEAdvertising    *myAdvertising;
 
 static int registeredCharacteristicCount = 0;
 
+int GetMatchCharacteristicIntex(char*);
+
 typedef void (*OnDeviceConnectedCallback)();
 typedef void (*OnDeviceDisconnectedCallback)();
+typedef void (*OnCharacteristicChangeCallback)(String);
 
 static OnDeviceConnectedCallback    onDeviceConnectedCallback;
 static OnDeviceDisconnectedCallback onDeviceDisconnectedCallback;
+static OnCharacteristicChangeCallback onCharacteristicChangeCallback[maxCharacteristicCount];
 
 void SetUpDeviceConnectedCallback(OnDeviceConnectedCallback cb) { onDeviceConnectedCallback = cb; }
 void SetUpDeviceDisconnectedCallback(OnDeviceDisconnectedCallback cb) { onDeviceDisconnectedCallback = cb; }
+void SetUpOnCharacteristicChangeCallback(OnCharacteristicChangeCallback cb, char *characteristic)
+{
+  int index = GetMatchCharacteristicIntex(characteristic);
+  if (index == -1) return;
+
+  onCharacteristicChangeCallback[index] = cb;
+}
 
 class OnServerCallbacks: public BLEServerCallbacks
 {
@@ -56,6 +67,28 @@ class OnServerCallbacks: public BLEServerCallbacks
       printf("A device disconnected. Total Device is : [%d]\n", server->getConnectedCount()-1);
       onDeviceDisconnectedCallback();
     }
+};
+
+class OnCharacteristicCallbacks : public BLECharacteristicCallbacks
+{
+  void onWrite(BLECharacteristic* pCharacteristic)
+  {
+    String uuid = pCharacteristic->getUUID().toString().c_str();
+    
+    int uuid_len = uuid.length() + 1; 
+    char uuidBuf[uuid_len] ;
+    uuid.toCharArray(uuidBuf, uuid_len);
+  
+    int index = GetMatchCharacteristicIntex(uuidBuf);
+    String value = pCharacteristic->getValue().c_str();
+
+    printf("On Characteristic Callbacks for [%s], value:\n%s\n", uuid.c_str(), value);
+    
+    if (index == -1)                                    return;
+    if (onCharacteristicChangeCallback[index] == NULL)  return;
+    
+    onCharacteristicChangeCallback[index](value);
+  }
 };
 
 void SetUpBLEServer(char* deviceName)
