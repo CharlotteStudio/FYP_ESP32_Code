@@ -8,6 +8,7 @@ struct DeviceInfo
   int onOff;
   int value;
   unsigned int wifiMeshNodeId;
+  int bleChannel;
 };
 
 static DeviceInfo deviceInfo[maximum_device_count];
@@ -18,6 +19,16 @@ int GetExistedDeviceInt(unsigned int wifiMeshNodeId)
   for(int i = 0; i < maximum_device_count; i++)
   {
     if (deviceInfo[i].wifiMeshNodeId == wifiMeshNodeId)
+      return i;
+  }
+  return -1;
+}
+
+int GetExistedDeviceInt(String mac)
+{
+  for(int i = 0; i < maximum_device_count; i++)
+  {
+    if (deviceInfo[i].deviceMac == mac)
       return i;
   }
   return -1;
