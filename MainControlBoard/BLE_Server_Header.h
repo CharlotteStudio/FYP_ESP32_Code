@@ -21,11 +21,11 @@
 #include <BLEServer.h>
 #include <BLE2902.h>
 
-#define characteristicSize 8
+#define maxCharacteristicCount 8
 
 static BLEUUID           serviceUUID;
-static BLEUUID           characteristicUUIDArray[characteristicSize];
-static BLECharacteristic *myCharacteristicArray[characteristicSize];
+static BLEUUID           characteristicUUIDArray[maxCharacteristicCount];
+static BLECharacteristic *myCharacteristicArray[maxCharacteristicCount];
 
 static BLEServer         *myServer;
 static BLEService        *myService;
@@ -42,20 +42,18 @@ static OnDeviceDisconnectedCallback onDeviceDisconnectedCallback;
 void SetUpDeviceConnectedCallback(OnDeviceConnectedCallback cb) { onDeviceConnectedCallback = cb; }
 void SetUpDeviceDisconnectedCallback(OnDeviceDisconnectedCallback cb) { onDeviceDisconnectedCallback = cb; }
 
-class MyServerCallbacks: public BLEServerCallbacks
+class OnServerCallbacks: public BLEServerCallbacks
 {
     void onConnect(BLEServer* server)
     {
-      Serial.print("A device connnected. Total Device is : ");
-      Serial.println(server->getConnectedCount());
-      onDeviceConnectedCallback();
       BLEDevice::startAdvertising();
+      printf("A device connnected.   Total Device is : [%d]\n", server->getConnectedCount()+1);
+      onDeviceConnectedCallback();
     };
 
     void onDisconnect(BLEServer* server)
     {
-      Serial.print("A device disconnected. Total Device is : ");
-      Serial.println(server->getConnectedCount());
+      printf("A device disconnected. Total Device is : [%d]\n", server->getConnectedCount()-1);
       onDeviceDisconnectedCallback();
     }
 };
@@ -64,7 +62,7 @@ void SetUpBLEServer(char* deviceName)
 {
   BLEDevice::init(deviceName);
   myServer = BLEDevice::createServer();
-  myServer->setCallbacks(new MyServerCallbacks());
+  myServer->setCallbacks(new OnServerCallbacks());
   Serial.println("Set up Server successful.");
 }
 
@@ -103,8 +101,15 @@ void SetUpBLECharacteristic(char* characteristicUUID)
       BLECharacteristic::PROPERTY_READ | 
       BLECharacteristic::PROPERTY_WRITE
       );
-  myService->start();
+  myCharacteristicArray[registeredCharacteristicCount]->setCallbacks(new OnCharacteristicCallbacks());
+  printf("Create Characteristic successful : [%s]\n", myCharacteristicArray[registeredCharacteristicCount]->getUUID().toString().c_str());
+  
   registeredCharacteristicCount++;
+}
+
+void StartService()
+{
+  myService->start();
 }
 
 void SetUpAdvertising()
@@ -130,15 +135,6 @@ void SetUpAdvertising()
   BLEDevice::startAdvertising();
   
   Serial.println("Set up Advertising successful.");
-}
-
-int GetMatchCharacteristicIntex(char *characteristic)
-{
-  for (int i = 0; i < characteristicSize; i++)
-  {
-    if(strcmp(characteristicUUIDArray[i].toString().c_str(), characteristic) == 0) return i;
-  }
-  return -1;
 }
 
 void SetCharacteristicMessage(char* characteristicUUID, String str)
@@ -170,4 +166,14 @@ String GetCharacteristicMessage(char* characteristicUUID)
   Serial.print("Get the Value : ");
   Serial.println(value.c_str());
   return value.c_str();
+}
+
+int GetMatchCharacteristicIntex(char *characteristic)
+{
+  for (int i = 0; i < maxCharacteristicCount; i++)
+  {
+    if(strcmp(characteristicUUIDArray[i].toString().c_str(), characteristic) == 0) return i;
+  }
+  printf("Can not find characteristic [%s]\n", characteristic);
+  return -1;
 }
