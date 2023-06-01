@@ -16,12 +16,15 @@ static unsigned long nextTime_sendRegisteredMessage = 0;
 static bool tryConnectBLE = false;
 static bool isRegistered = false;
 
+static int valueChannel = -1;
+
 bool IsConnected() { return isConnectedMeshNetwork || isConnectedBLEService(); }
 
 void SwitchConnection();
 String CreateRegisteredMessage();
 String CreateValueDataMessage(int);
 void OnClickCallback();
+void ReceivedBLECallback(String&);
 void ReceivedWiFiMeshCallback(unsigned int, String&);
 
 void SetUpConnection()
@@ -117,6 +120,79 @@ String CreateRegisteredMessage()
   return str;
 }
 
+void UpdateBLE()
+{
+  String target = ReceivedBLEMessage(characteristicUUID_To);
+  if (target.equals(ble_empty)) return;
+  
+  if (target.equals(mac_address_str))
+  {
+    printf("Message Target is [%s], is me\n", target.c_str());
+    String message = ReceivedBLEMessage(characteristicUUID_Message);
+    if (!message.equals(ble_empty))
+    {
+      ReceivedBLECallback(message);
+    }
+    else
+    {
+      printf("Message json is empty...\n");
+    }
+    target  = ble_empty;
+    message = ble_empty;
+    SendoutBLEMessage(characteristicUUID_To, ble_empty);
+    SendoutBLEMessage(characteristicUUID_Message, ble_empty);
+  }
+  else
+  {
+    printf("Message Target is [%s], is not me\n", target.c_str());
+  }
+}
+
+void ReceivedBLECallback(String& json)
+{
+  StaticJsonDocument<jsonDeserializeSize> doc;
+
+  DeserializationError error = deserializeJson(doc, json);
+
+  if (error)
+  {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(error.f_str());
+    return;
+  }
+
+  bool isRegisterMessage = doc["Register"].is<int>();
+  if (isRegisterMessage)
+  {
+    int registered = doc["Register"];
+    if (registered > 0)
+    {
+      valueChannel = doc["Channel"].as<int>();
+      printf("Received register success. channel is [%d]\n", valueChannel);
+      isRegistered = true;
+    }
+    else
+    {
+      Serial.println("Received register fail.");
+      isRegistered = false;
+    }
+  }
+
+  bool isSetUpdateSpeedMessage = doc["SetUpdateSpeed"].is<int>();
+  if (isSetUpdateSpeedMessage)
+  {
+    int updateSpeed = doc["SetUpdateSpeed"].as<int>();
+    if (updateSpeed < 1)
+    {
+      waitingTime_soilSensor = 1000;
+    }
+    else
+    {
+      waitingTime_soilSensor = updateSpeed * 1000;
+    }
+  }
+}
+
 void ReceivedWiFiMeshCallback(unsigned int from, String& json)
 {
   StaticJsonDocument<jsonDeserializeSize> doc;
@@ -178,7 +254,8 @@ void TrySendDataMessage(int value)
 
   if (isConnectedBLEService())
   {
-    //SendoutBLEMessage(characteristicUUID_SoilSensor, String(value));
+    if (valueChannel == -1) return;
+    SendoutBLEMessage(characteristicUUID_channel[valueChannel], String(value));
   }
 
   if (isConnectedMeshNetwork)
