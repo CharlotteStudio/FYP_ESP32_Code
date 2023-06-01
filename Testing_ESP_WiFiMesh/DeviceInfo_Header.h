@@ -53,3 +53,11 @@ bool IsExistedDevice(String mac)
 {
   return (GetWiFiMeshNodeIdByMacAddress(mac) != 0);
 }
+
+void PrintDeviceInfo(int index)
+{
+  printf("DeviceInfo     : [%d]\n", index);
+  printf("deviceTpye     : [%d]\ndeviceMac      : [%s]\n", deviceInfo[index].deviceTpye, deviceInfo[index].deviceMac.c_str());
+  printf("onOff          : [%d]\nvalue          : [%d]\n", deviceInfo[index].onOff, deviceInfo[index].value);
+  printf("wifiMeshNodeId : [%u]\nbleChannel     : [%d]\n", deviceInfo[index].wifiMeshNodeId, deviceInfo[index].bleChannel);
+}
