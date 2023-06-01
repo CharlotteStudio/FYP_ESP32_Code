@@ -1,4 +1,5 @@
-/*
+/* Version 0.1.1
+ *  
  * BLE Client ESP32 only
  * Resource : https://www.electronicshub.org/esp32-ble-tutorial/
  * 
@@ -104,15 +105,19 @@ class ConnectedCallback : public BLEClientCallbacks
   void onConnect(BLEClient* bleClient)
   {
     Serial.println("Connected");
-    connectedBLECallback();
     ClearDeviceArray();
+    
+    if (connectedBLECallback == NULL) return;
+    connectedBLECallback();
   }
 
   void onDisconnect(BLEClient* bleClient)
   {
     Serial.println("Disconnected");
-    disconnectedBLECallback();
     DisconnectDevice();
+
+    if (disconnectedBLECallback == NULL) return;
+    disconnectedBLECallback();
   }
 };
 
@@ -274,6 +279,8 @@ void DisconnectDevice()
   targetServiceUUID  = BLEUUID("");
   targetDevice       = NULL;
   currentScannedDeviceCount = 0;
+
+  if (disconnectedBLECallback == NULL) return;
   disconnectedBLECallback();
 }
 
