@@ -1,4 +1,4 @@
-/* Version 0.1.0
+/* Version 0.1.1
  *  
  * BLE Server, ESP32 only
  * Resource : https://www.electronicshub.org/esp32-ble-tutorial/
@@ -37,7 +37,7 @@ int GetMatchCharacteristicIntex(char*);
 
 typedef void (*OnDeviceConnectedCallback)();
 typedef void (*OnDeviceDisconnectedCallback)();
-typedef void (*OnCharacteristicChangeCallback)(String);
+typedef void (*OnCharacteristicChangeCallback)(int, String);
 
 static OnDeviceConnectedCallback    onDeviceConnectedCallback;
 static OnDeviceDisconnectedCallback onDeviceDisconnectedCallback;
@@ -82,12 +82,12 @@ class OnCharacteristicCallbacks : public BLECharacteristicCallbacks
     int index = GetMatchCharacteristicIntex(uuidBuf);
     String value = pCharacteristic->getValue().c_str();
 
-    printf("On Characteristic Callbacks for [%s], value:\n%s\n", uuid.c_str(), value);
+    printf("On Characteristic Callbacks from [%s], index [%d], value: [%s]\n", uuid.c_str(),index ,value);
     
     if (index == -1)                                    return;
     if (onCharacteristicChangeCallback[index] == NULL)  return;
     
-    onCharacteristicChangeCallback[index](value);
+    onCharacteristicChangeCallback[index](index, value);
   }
 };
 
