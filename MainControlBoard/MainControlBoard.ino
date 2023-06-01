@@ -5,12 +5,16 @@
 #include "WiFiMesh_Header.h"
 #include <ArduinoJson.h>
 
+#define ble_message_reset_time 10
+
+static unsigned long nextTime_bleMessageReset = 0;
+static bool isLockedBLETarget = false;
+static bool isConnectedAWS = false;
+
 void ReceivedMessageFormWiFiMesh(unsigned int, String&);
 void SendoutRegisteredSuccessMessage(unsigned int);
 
-static bool isConnectedAWS = false;
-
-void OnTargetChange(String str)
+void OnTargetChange(int index, String str)
 {
   Serial.print("Message Target is [");
   Serial.print(str);
@@ -18,14 +22,45 @@ void OnTargetChange(String str)
   if (!str.equals("0"))
   {
     Serial.println("], is not me");
+    if (str.equals(ble_empty))
+    {
+      Serial.println("Release BLE Locker.");
+      isLockedBLETarget = false;
+    }
     return;
   }
   Serial.println("], is me");
 
   String json = GetCharacteristicMessage(characteristicUUID_Message);
   ReceivedMessageFormBLE(json);
+  nextTime_bleMessageReset = millis() + ble_message_reset_time;
 }
 
+void OnValueChannelChangeCallback(int index, String str)
+{
+  int channelIndex = index - specialChannelCount;
+  for(int i = 0; i < maximum_device_count; i++)
+  {
+    if (deviceInfo[i].bleChannel == channelIndex)
+    {
+      StaticJsonDocument<jsonSerializeAWSDataSize> doc;
+
+      deviceInfo[i].value = str.toInt();
+      printf("Update value is [%d]\n", deviceInfo[i].value);
+      
+      doc["DeviceTpye"] = deviceInfo[i].deviceTpye;
+      doc["DeviceMac"]  = deviceInfo[i].deviceMac;
+      doc["Value"]      = deviceInfo[i].value;
+      
+      serializeJsonPretty(doc, mySerial);
+      Serial.println("Software Serial send out json : ");
+      serializeJsonPretty(doc, Serial);
+      Serial.println("");
+      return;
+    }
+  }
+  printf("Unregister device [%d] message : [%s]\n", channelIndex, str.c_str());
+}
 
 void setup()
 {
@@ -37,6 +72,11 @@ void setup()
   SetUpWifiMesh();
 
   SetUpOnCharacteristicChangeCallback(OnTargetChange, characteristicUUID_To);
+
+  for(int i = 0; i < maxCharacteristicUUIDChannelCount; i++)
+  {
+    SetUpOnCharacteristicChangeCallback(OnValueChannelChangeCallback, characteristicUUID_channel[i]);
+  }
 }
 
 void loop()
@@ -46,15 +86,14 @@ void loop()
   if (!isConnectedAWS) { delay(50); return; }
   
   UpdateWifiMesh();
-  /*
-  String currentSoilValue = GetCharacteristicMessage(characteristicUUID_SoilSensor);
-  
-  if (currentSoilValue != lastSoilString)
+
+  if (isLockedBLETarget && millis() > nextTime_bleMessageReset)
   {
-    lastSoilString = currentSoilValue;
-    SoftwareSerialSendout();
+    isLockedBLETarget = false;
+    SetCharacteristicMessage(characteristicUUID_To, ble_empty);
+    SetCharacteristicMessage(characteristicUUID_Message, ble_empty);
   }
-  */
+
   delay(50);
 }
 
@@ -116,8 +155,17 @@ void ReceivedMessageFormBLE(String &json)
 void SendoutRegisteredSuccessMessage_BLE(String mac, int channelNumber)
 {
   Serial.println("Send out registered success at BLE");
+  
+  StaticJsonDocument<jsonSerializeRegisterSize> doc;
+  doc["Register"] = 1;
+  doc["Channel"] = channelNumber;
+  String str;
+  serializeJsonPretty(doc, str);
+  serializeJsonPretty(doc, Serial);
+  Serial.println("");
+  
   SetCharacteristicMessage(characteristicUUID_To, mac);
-  SetCharacteristicMessage(characteristicUUID_Message, String(currentChannelIndex));
+  SetCharacteristicMessage(characteristicUUID_Message, str);
 }
 
 void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
