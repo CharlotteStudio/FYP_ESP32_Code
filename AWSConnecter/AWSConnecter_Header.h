@@ -1,5 +1,12 @@
+#ifdef ESP32
 #define led_no_wifi_pin 23
-#define led_aws_pin 18
+#define led_aws_pin     18
+#endif
+
+#ifdef ESP8266
+#define led_no_wifi_pin 0
+#define led_aws_pin     4
+#endif
 
 static bool led_wifi_isOn = true;
 static bool led_aws_isOn  = false;
