@@ -61,7 +61,6 @@ void TryConnection()
 
   if (tryConnectBLE)
   {
-    Serial.println("Try connect BLE ...");
     ScanBLEAndConnect();
   } 
   else
@@ -88,9 +87,9 @@ void TrySendRegisterMessage()
 
   if (isConnectedBLEService())
   {
-    String toDevice = ReceivedBLEMessage(characteristicUUID_To);
+    String toTarget = ReceivedBLEMessage(characteristicUUID_To);
     String message  = ReceivedBLEMessage(characteristicUUID_Message);
-    if (!toDevice.equals(ble_empty) || !message.equals(ble_empty)) return;
+    if (!toTarget.equals(ble_empty) || !message.equals(ble_empty)) return;
     
     String json = CreateRegisteredMessage();
     printf("Send out Register message by BLE.\n%s\n", json.c_str());

@@ -90,12 +90,14 @@ void ReceivedMessageFormBLE(String &json)
         .wifiMeshNodeId = 0,
         .bleChannel = currentChannelIndex
     };
-    deviceInfo[currentRegistedDeviceCount++] = newDevice;
-    
-    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMac is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\nbleChannel is [%d]\n", newDevice.deviceTpye, newDevice.deviceMac.c_str(), newDevice.onOff, newDevice.wifiMeshNodeId, newDevice.bleChannel);
-    printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount);
+    deviceInfo[currentRegistedDeviceCount] = newDevice;
+
+    printf("Register a new device :\n");
+    PrintDeviceInfo(currentRegistedDeviceCount);
+    printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount+1);
 
     SendoutRegisteredSuccessMessage_BLE(mac, newDevice.bleChannel);
+    currentRegistedDeviceCount++;
     currentChannelIndex++;
   }
   else
@@ -105,8 +107,6 @@ void ReceivedMessageFormBLE(String &json)
   }
   
   // Software Serial send out register
-  doc.remove("To");
-
   serializeJsonPretty(doc, mySerial);
   Serial.println("Software Serial send out json : ");
   serializeJsonPretty(doc, Serial);
@@ -176,8 +176,9 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
     };
     deviceInfo[currentRegistedDeviceCount++] = newDevice;
     
-    printf("Register a new device :\nDeviceTpye is [%d]\nDeviceMac is  [%s]\nRegistered is [%d]\nWifi Mesh NodeId is [%u]\n", newDevice.deviceTpye, newDevice.deviceMac.c_str(), newDevice.onOff, newDevice.wifiMeshNodeId);
-    printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount);
+    printf("Register a new device :\n");
+    PrintDeviceInfo(currentRegistedDeviceCount);
+    printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount+1);
 
     SendoutRegisteredSuccessMessage(wifiMeshNodeId);
   }

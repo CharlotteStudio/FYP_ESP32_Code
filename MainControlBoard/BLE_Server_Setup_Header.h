@@ -1,12 +1,13 @@
 #include "BLE_Server_Header.h"
 
-#define maxCharacteristicUUIDChannelCount maxCharacteristicCount-2
+#define specialChannelCount 2
+#define maxCharacteristicUUIDChannelCount maxCharacteristicCount-specialChannelCount
 
-static char* serviceUID          = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
-static char* deviceName          = "ESP32-BLE-Server";
+static char* serviceUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+static char* deviceName = "ESP32-BLE-Server";
 
-static char* characteristicUUID_To       = "beb5483e-36e1-4688-b7f5-ea00361b26a0";  // for check target
-static char* characteristicUUID_Message  = "beb5483e-36e1-4688-b7f5-ea00361b26a1";  // for check json
+static char* characteristicUUID_To      = "beb5483e-36e1-4688-b7f5-ea00361b26a0";  // for check target
+static char* characteristicUUID_Message = "beb5483e-36e1-4688-b7f5-ea00361b26a1";  // for check json
 
 static char* characteristicUUID_channel[maxCharacteristicUUIDChannelCount] = {
   "beb5483e-36e1-4688-b7f5-ea10121b26a1",
@@ -17,9 +18,7 @@ static char* characteristicUUID_channel[maxCharacteristicUUIDChannelCount] = {
   "beb5483e-36e1-4688-b7f5-ea10121b26a6",
 };
 
-static String ble_empty   = "_";
-static String ble_to      = "_";
-static String ble_message = "_";
+static String ble_empty = "_";
 
 static int currentChannelIndex = 0;
 

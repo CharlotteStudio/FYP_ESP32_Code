@@ -27,19 +27,19 @@ static ReceivedMessageCallback receivedMessageCallback;
 void SetUpConnectedWiFiMeshCallback(ConnectedWiFiMeshCallback cb)
 {
   connectedWiFiMeshCallback = cb;
-  Serial.println("set up Connected WiFiMesh Callback.");
+  Serial.println("Set up Connected WiFiMesh Callback.");
 }
 
 void SetUpDisconnectedWiFiMeshCallback(DisconnectedWiFiMeshCallback cb)
 {
   disconnectedWiFiMeshCallback = cb;
-  Serial.println("set up Disconnected WiFiMesh Callback.");
+  Serial.println("Set up Disconnected WiFiMesh Callback.");
 }
 
 void SetUpReceivedMessageCallback(ReceivedMessageCallback cb)
 {
   receivedMessageCallback = cb;
-  Serial.println("set up Received Message Callback.");
+  Serial.println("Set up Received Message Callback.");
 }
 
 void receivedCallback(uint32_t from, String &msg)
