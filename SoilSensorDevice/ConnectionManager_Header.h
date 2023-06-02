@@ -7,14 +7,17 @@
 #include "MacAddress_Header.h"
 #include "SoilSensor_Header.h"
 
-#define waitingTime_switchConnect 60000
+#define waitingTime_switchConnect  30000
 #define waitingTime_sendRegisteredMessage 5000
+#define waitingTime_autoDisconnect 60000
 
 static unsigned long nextTime_switchConnect = 0;
 static unsigned long nextTime_sendRegisteredMessage = 0;
+static unsigned long nextTime_autoDisconnected = 0;
 
-static bool tryConnectBLE = false;
-static bool isRegistered = false;
+static bool tryConnectBLE  = false;
+static bool isRegistered   = false;
+static bool autoDisconnect = false;
 
 static int valueChannel = -1;
 
@@ -86,8 +89,29 @@ void SwitchConnection()
 
 void TrySendRegisterMessage()
 {
-  if (!IsConnected() || isRegistered)             return;
+  if (!IsConnected() || isRegistered)
+  {
+    if (autoDisconnect)
+      autoDisconnect = false;
+      
+    return;
+  }
+  
   if (millis() < nextTime_sendRegisteredMessage)  return;
+
+  // check auto disconnect
+  if (!autoDisconnect)
+  {
+    autoDisconnect = true;
+    nextTime_autoDisconnected = millis() + waitingTime_autoDisconnect;
+  }
+  if (autoDisconnect && millis() > nextTime_autoDisconnected)
+  {
+    autoDisconnect = false;
+    OnClickCallback();
+    return;
+  }
+  
   nextTime_sendRegisteredMessage = millis() + waitingTime_sendRegisteredMessage;
 
   if (isConnectedBLEService())
