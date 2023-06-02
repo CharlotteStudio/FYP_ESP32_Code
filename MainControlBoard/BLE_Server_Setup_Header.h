@@ -27,12 +27,12 @@ void changedConnectionCallback()
   Serial.printf("changed connections\n");
 }
 
-void BLEConnectedCallback()
+void BLEConnectedCallback(BLEServer* server)
 {
   //Serial.println("A BLE Device Connected.");
 }
 
-void BLEDisconnectedCallback()
+void BLEDisconnectedCallback(BLEServer* server)
 {
   //Serial.println("A BLE Device Disconnected.");
 }

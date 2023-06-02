@@ -1,4 +1,4 @@
-/* Version 0.1.1
+/* Version 0.1.2
  *  
  * BLE Server, ESP32 only
  * Resource : https://www.electronicshub.org/esp32-ble-tutorial/
@@ -35,8 +35,8 @@ static int registeredCharacteristicCount = 0;
 
 int GetMatchCharacteristicIntex(char*);
 
-typedef void (*OnDeviceConnectedCallback)();
-typedef void (*OnDeviceDisconnectedCallback)();
+typedef void (*OnDeviceConnectedCallback)(BLEServer*);
+typedef void (*OnDeviceDisconnectedCallback)(BLEServer*);
 typedef void (*OnCharacteristicChangeCallback)(int, String);
 
 static OnDeviceConnectedCallback    onDeviceConnectedCallback;
@@ -59,13 +59,18 @@ class OnServerCallbacks: public BLEServerCallbacks
     {
       BLEDevice::startAdvertising();
       printf("A device connnected.   Total Device is : [%d]\n", server->getConnectedCount()+1);
-      onDeviceConnectedCallback();
+      
+      if(onDeviceConnectedCallback == NULL) return;
+      onDeviceConnectedCallback(server);
     };
 
     void onDisconnect(BLEServer* server)
     {
-      printf("A device disconnected. Total Device is : [%d]\n", server->getConnectedCount()-1);
-      onDeviceDisconnectedCallback();
+      int currentCount = server->getConnectedCount()-1;
+      printf("A device disconnected. Total Device is : [%d]\n", currentCount);
+      
+      if(onDeviceDisconnectedCallback == NULL) return;
+      onDeviceDisconnectedCallback(server);
     }
 };
 
