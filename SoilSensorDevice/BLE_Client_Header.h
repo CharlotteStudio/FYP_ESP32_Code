@@ -1,4 +1,4 @@
-/* Version 0.1.1
+/* Version 0.1.2
  *  
  * BLE Client ESP32 only
  * Resource : https://www.electronicshub.org/esp32-ble-tutorial/
@@ -270,10 +270,11 @@ bool TryConnectTargetServer()
 
 void DisconnectDevice()
 {
-  if (bleClient->isConnected()) bleClient->disconnect();
-  
-  // Release BLEClient member
-  delete bleClient;
+  if (isConnectedBLEService())
+    bleClient->disconnect();
+  else
+    return;
+
   bleClient = nullptr;
 
   targetServiceUUID  = BLEUUID("");

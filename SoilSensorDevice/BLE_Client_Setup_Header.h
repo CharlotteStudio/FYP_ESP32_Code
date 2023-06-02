@@ -17,7 +17,7 @@ static char* characteristicUUID_channel[maxCharacteristicUUIDChannelCount] = {
   "beb5483e-36e1-4688-b7f5-ea10121b26a6",
 };
 
-static String ble_empty   = "_";
+static String ble_empty = "_";
 
 #define scanDuration 3               // scan BLE time
 #define waitingTime_bleScaner 5000   // scan BLE and try connect will use this time
