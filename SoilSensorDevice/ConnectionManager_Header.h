@@ -15,7 +15,7 @@ static unsigned long nextTime_switchConnect = 0;
 static unsigned long nextTime_sendRegisteredMessage = 0;
 static unsigned long nextTime_autoDisconnected = 0;
 
-static bool tryConnectBLE  = false;
+static bool tryConnectBLE  = true;
 static bool isRegistered   = false;
 static bool autoDisconnect = false;
 
@@ -55,7 +55,6 @@ void OnClickCallback()
   {
     DisconnectedWifiMesh();
     tryConnectBLE = true;
-    
   }
   isRegistered = false;
   delay(2000);

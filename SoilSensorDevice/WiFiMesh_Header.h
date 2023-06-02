@@ -55,11 +55,11 @@ void receivedCallback(uint32_t from, String &msg)
 void SetUpWifiMesh()
 {
   mesh.setDebugMsgTypes( ERROR | STARTUP );
-
   mesh.init( MESH_PREFIX, MESH_PASSWORD, MESH_PORT );
   mesh.onReceive(receivedCallback);
+  
   isConnectedMeshNetwork = true;
-
+  
   if (connectedWiFiMeshCallback != NULL)
   {
     connectedWiFiMeshCallback();
