@@ -45,16 +45,18 @@ void OnClickCallback()
   if (isConnectedBLEService())
   {
     DisconnectDevice();
-    nextTime_switchConnect = millis() + waitingTime_switchConnect;
     tryConnectBLE = false;
   }
   
   if (isConnectedMeshNetwork)
   {
     DisconnectedWifiMesh();
-    nextTime_switchConnect = millis() + waitingTime_switchConnect;
     tryConnectBLE = true;
+    
   }
+  isRegistered = false;
+  delay(2000);
+  nextTime_switchConnect = millis() + waitingTime_switchConnect;
 }
 
 void TryConnection()
@@ -145,6 +147,11 @@ void UpdateBLE()
   else
   {
     printf("Message Target is [%s], is not me\n", target.c_str());
+    if (target.equals(""))
+    {
+      printf("Main Control Device is disconnected, try disconnected that.\n");
+      DisconnectDevice();
+    }
   }
 }
 
