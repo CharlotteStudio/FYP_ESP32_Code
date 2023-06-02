@@ -51,7 +51,12 @@ unsigned int GetWiFiMeshNodeIdByMacAddress(String mac)
 
 bool IsExistedDevice(String mac)
 {
-  return (GetWiFiMeshNodeIdByMacAddress(mac) != 0);
+  for(int i = 0; i < maximum_device_count; i++)
+  {
+    if (deviceInfo[i].deviceMac == mac)
+      return true;
+  }
+  return false;
 }
 
 void PrintDeviceInfo(int index)
