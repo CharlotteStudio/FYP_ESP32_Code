@@ -91,11 +91,12 @@ void TrySendRegisterMessage()
   if (!IsConnected() || isRegistered)
   {
     if (autoDisconnect)
-      autoDisconnect = false;
-      
+    {
+      autoDisconnect = false;      
+    }
     return;
   }
-  
+
   if (millis() < nextTime_sendRegisteredMessage)  return;
 
   // check auto disconnect
@@ -106,6 +107,7 @@ void TrySendRegisterMessage()
   }
   if (autoDisconnect && millis() > nextTime_autoDisconnected)
   {
+    Serial.println("Time out try auto Disconnect.");
     autoDisconnect = false;
     OnClickCallback();
     return;
@@ -148,7 +150,7 @@ String CreateRegisteredMessage()
 void UpdateBLE()
 {
   String target = ReceivedBLEMessage(characteristicUUID_To);
-  if (target.equals(ble_empty)) return;
+  if (target.equals(ble_empty) || target.equals("0")) return;
   
   if (target.equals(mac_address_str))
   {
