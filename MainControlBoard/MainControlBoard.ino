@@ -52,14 +52,14 @@ void OnValueChannelChangeCallback(int index, String str)
   {
     if (deviceInfo[i].bleChannel == channelIndex)
     {
-      StaticJsonDocument<jsonSerializeAWSDataSize> doc;
+      StaticJsonDocument<jsonDeserializeSize> doc;
 
       deviceInfo[i].value = str.toInt();
       printf("Update value is [%d]\n", deviceInfo[i].value);
       
+      doc["Value"]      = deviceInfo[i].value;
       doc["DeviceTpye"] = deviceInfo[i].deviceTpye;
       doc["DeviceMac"]  = deviceInfo[i].deviceMac;
-      doc["Value"]      = deviceInfo[i].value;
       
       serializeJsonPretty(doc, mySerial);
       Serial.println("Software Serial send out json : ");
