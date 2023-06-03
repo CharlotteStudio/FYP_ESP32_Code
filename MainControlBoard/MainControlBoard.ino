@@ -151,7 +151,17 @@ void ReceivedMessageFormBLE(String &json)
   else
   {
     printf("Decive [%s] had been existed, resend success message :\n", mac.c_str());
-    SendoutRegisteredSuccessMessage_BLE(mac, deviceInfo[GetExistedDeviceInt(mac)].bleChannel);
+
+    int index = GetExistedDeviceInt(mac);
+    int channel = deviceInfo[index].bleChannel;
+    if (channel == -1)
+    {
+      printf("have not assign channel, assign a new channel [%d]n", currentChannelIndex);
+      deviceInfo[index].bleChannel = currentChannelIndex;
+      currentChannelIndex++;
+    }
+
+    SendoutRegisteredSuccessMessage_BLE(mac, deviceInfo[index].bleChannel);
   }
   
   // Software Serial send out register
