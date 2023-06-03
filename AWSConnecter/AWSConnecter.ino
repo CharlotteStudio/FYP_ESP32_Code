@@ -41,7 +41,9 @@ void loop()
   }
     
   AWSCheckReceivedMessage();
-  if (!json.equals(""))
+
+  // check the format is json
+  if (!json.equals("") && json.indexOf("{") != -1 && json.indexOf("}") != -1 && json.indexOf(":") != -1 )
   {
     AWSSendoutJson(json);
   }
