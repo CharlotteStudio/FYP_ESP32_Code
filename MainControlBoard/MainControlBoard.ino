@@ -11,11 +11,20 @@ static unsigned long nextTime_bleMessageReset = 0;
 static bool isLockedBLETarget = false;
 static bool isConnectedAWS = false;
 
+static bool needWifi = true;
+
 void ReceivedMessageFormWiFiMesh(unsigned int, String&);
 void SendoutRegisteredSuccessMessage(unsigned int);
 
 void OnTargetChange(int index, String str)
 {
+  if (!isConnectedAWS && needWifi)
+  {
+    Serial.println("Not connected AWS, reset message ...");
+    SetCharacteristicMessage(characteristicUUID_To, ble_empty);
+    SetCharacteristicMessage(characteristicUUID_Message, ble_empty);
+    return;
+  }
   Serial.print("Message Target is [");
   Serial.print(str);
   
@@ -83,7 +92,7 @@ void loop()
 {
   SoftwareSerialReceiveAndSendout();
 
-  if (!isConnectedAWS) { delay(50); return; }
+  if (!isConnectedAWS && needWifi) { delay(50); return; }
   
   UpdateWifiMesh();
 
