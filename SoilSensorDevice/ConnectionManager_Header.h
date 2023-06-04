@@ -7,6 +7,8 @@
 #include "MacAddress_Header.h"
 #include "SoilSensor_Header.h"
 
+#define DeviceTpye 1
+
 #define waitingTime_switchConnect  30000
 #define waitingTime_sendRegisteredMessage 5000
 #define waitingTime_autoDisconnect 60000
