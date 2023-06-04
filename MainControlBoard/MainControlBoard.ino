@@ -140,31 +140,23 @@ void ReceivedMessageFormBLE(String &json)
     return;
   }
 
+  // Software Serial send out register
+  serializeJsonPretty(doc, mySerial);
+  Serial.println("Software Serial send out json : ");
+  serializeJsonPretty(doc, Serial);
+  Serial.println("");
+
   String mac = doc["DeviceMac"].as<String>();
-  
+
   if (!IsExistedDevice(mac))
   {
-    DeviceInfo newDevice = {
-        .deviceMac = mac,
-        .deviceTpye = doc["DeviceTpye"].as<int>(),
-        .onOff = doc["Register"].as<int>(),
-        .value = 0,
-        .wifiMeshNodeId = 0,
-        .bleChannel = currentChannelIndex
-    };
-    deviceInfo[currentRegistedDeviceCount] = newDevice;
-
-    printf("Register a new device :\n");
-    PrintDeviceInfo(currentRegistedDeviceCount);
-    printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount+1);
-
-    SendoutRegisteredSuccessMessage_BLE(mac, newDevice.bleChannel);
-    currentRegistedDeviceCount++;
+    CreateNewDevice(mac, doc["DeviceTpye"].as<int>(), doc["Register"].as<int>(), 0, currentChannelIndex);
+    SendoutRegisteredSuccessMessage_BLE(mac, currentChannelIndex);
     currentChannelIndex++;
   }
   else
   {
-    int index = GetExistedDeviceInt(mac);
+    int index = GetExistedDeviceIndex(mac);
     int channel = deviceInfo[index].bleChannel;
     deviceInfo[index].wifiMeshNodeId = 0;
     
@@ -178,12 +170,6 @@ void ReceivedMessageFormBLE(String &json)
 
     SendoutRegisteredSuccessMessage_BLE(mac, deviceInfo[index].bleChannel);
   }
-  
-  // Software Serial send out register
-  serializeJsonPretty(doc, mySerial);
-  Serial.println("Software Serial send out json : ");
-  serializeJsonPretty(doc, Serial);
-  Serial.println("");
 }
 
 void SendoutRegisteredSuccessMessage_BLE(String mac, int channelNumber)
@@ -249,30 +235,16 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
   // Create a new Device
   if (index == -1)
   {
-    String mac_address = doc["DeviceMac"].as<String>();
+    String mac = doc["DeviceMac"].as<String>();
 
     // CHeck the device is registered by BLE
-    if(IsExistedDevice(mac_address))
+    if(IsExistedDevice(mac))
     {
-      int index = GetExistedDeviceInt(mac_address);
-      deviceInfo[index].wifiMeshNodeId = wifiMeshNodeId;
-      printf("Decive [%s] had been existed, resend success message :\nReset wifiMeshNodeId to [%u]\n", mac_address.c_str(), deviceInfo[index].wifiMeshNodeId);
+      SetNodeIdByDeviceMac(mac, wifiMeshNodeId);
     }
     else
     {
-      DeviceInfo newDevice = {
-          .deviceMac = mac_address,
-          .deviceTpye = doc["DeviceTpye"].as<int>(),
-          .onOff = doc["Register"].as<int>(),
-          .value = 0,
-          .wifiMeshNodeId = wifiMeshNodeId,
-          .bleChannel = -1
-      };
-      deviceInfo[currentRegistedDeviceCount++] = newDevice;
-      
-      printf("Register a new device :\n");
-      PrintDeviceInfo(currentRegistedDeviceCount);
-      printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount+1);
+      CreateNewDevice(mac, doc["DeviceTpye"].as<int>(), doc["Register"].as<int>(), wifiMeshNodeId, -1);
     }
     SendoutRegisteredSuccessMessage(wifiMeshNodeId);
   }
