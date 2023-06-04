@@ -97,6 +97,12 @@ void loop()
   
   UpdateWifiMesh();
 
+  int triggerActiveDevice = CheckDeviceListener();
+  if (triggerActiveDevice != -1)
+  {
+    AutoSendActiveMessage(triggerActiveDevice);
+  }
+
   if (isLockedBLETarget && millis() > nextTime_bleMessageReset)
   {
     isLockedBLETarget = false;
@@ -335,6 +341,30 @@ void SoftwareSerialReceiveAndSendout()
     sendoutDoc["To"] = nodeId;
 
     serializeJsonPretty(sendoutDoc, str);
+    SendoutWifiMesh(str);
+  }
+}
+
+void AutoSendActiveMessage(int index)
+{
+  StaticJsonDocument<jsonSerializeDataSize> doc;
+
+  doc["ActiveState"] = 1;
+  String str;
+  
+  if (deviceInfo[index].wifiMeshNodeId == 0)
+  {
+    printf("Send out active message to [%s] by BLE\n", deviceInfo[index].deviceMac );
+    serializeJsonPretty(doc, str);
+    SetCharacteristicMessage(characteristicUUID_To, deviceInfo[index].deviceMac);
+    SetCharacteristicMessage(characteristicUUID_Message, str);
+  }
+  else
+  {
+    printf("Send out active message to [%s] by Wifi\n", deviceInfo[index].deviceMac );
+    
+    doc["To"] = deviceInfo[index].wifiMeshNodeId;
+    serializeJsonPretty(doc, str);
     SendoutWifiMesh(str);
   }
 }
