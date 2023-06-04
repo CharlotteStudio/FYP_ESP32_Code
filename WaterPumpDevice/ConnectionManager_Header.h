@@ -185,7 +185,7 @@ void UpdateBLE()
 
 void ReceivedBLECallback(String& json)
 {
-  StaticJsonDocument<jsonDeserializeSize> doc;
+  StaticJsonDocument<jsonDeserializeDataSize> doc;
 
   DeserializationError error = deserializeJson(doc, json);
 
@@ -232,7 +232,7 @@ void ReceivedBLECallback(String& json)
 
 void ReceivedWiFiMeshCallback(unsigned int from, String& json)
 {
-  StaticJsonDocument<jsonDeserializeSize> doc;
+  StaticJsonDocument<jsonDeserializeDataSize> doc;
 
   DeserializationError error = deserializeJson(doc, json);
 

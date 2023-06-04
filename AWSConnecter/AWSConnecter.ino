@@ -13,8 +13,8 @@
 #define wifi_ssid3 "Galaxy A33"
 #define wifi_password3 "64854678"
 
-String userName = "testingtesting@gmail.com";
-String password = "1234567890";
+String userName = "testing@gmail.com";
+String password = "123456";
 
 void setup()
 {
@@ -80,7 +80,7 @@ String HandleReceivedMessageFromSoftwareSerial()
 {
   if(!mySerial.available()) return "";
   
-  StaticJsonDocument<jsonSerializeAWSDataSize> doc;
+  StaticJsonDocument<jsonDeserializeAWSDataSize> doc;
 
   DeserializationError error = deserializeJson(doc, mySerial);
   if (error)
@@ -132,7 +132,7 @@ void AWSReceivedMessageLog(char* topic, byte* payload, unsigned int length)
   Serial.print(length);
   Serial.println(")");
 
-  StaticJsonDocument<jsonSerializeAWSDataSize> doc;
+  StaticJsonDocument<jsonDeserializeAWSDataSize> doc;
   
   deserializeJson(doc, payload);
   

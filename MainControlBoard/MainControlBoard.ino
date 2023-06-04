@@ -51,8 +51,8 @@ void OnValueChannelChangeCallback(int index, String str)
   {
     if (deviceInfo[i].bleChannel == channelIndex)
     {
-      StaticJsonDocument<jsonDeserializeSize> doc;
-
+      StaticJsonDocument<jsonDeserializeRegisterSize> doc;
+      
       deviceInfo[i].value = str.toInt();
       printf("Update value is [%d]\n", deviceInfo[i].value);
       
@@ -114,7 +114,7 @@ void ReceivedMessageFormBLE(String &json)
     return;
   }
   
-  StaticJsonDocument<jsonDeserializeSize> doc;
+  StaticJsonDocument<jsonDeserializeRegisterSize> doc;
 
   DeserializationError error = deserializeJson(doc, json);
 
@@ -175,7 +175,7 @@ void SendoutRegisteredSuccessMessage_BLE(String mac, int channelNumber)
 {
   Serial.println("Send out registered success at BLE");
   
-  StaticJsonDocument<jsonSerializeRegisterSize> doc;
+  StaticJsonDocument<jsonSerializeDataSize> doc;
   doc["Register"] = 1;
   doc["Channel"] = channelNumber;
   String str;
@@ -190,7 +190,7 @@ void SendoutRegisteredSuccessMessage_BLE(String mac, int channelNumber)
 
 void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
 {
-  StaticJsonDocument<jsonDeserializeSize> doc;
+  StaticJsonDocument<jsonDeserializeRegisterSize> doc;
 
   DeserializationError error = deserializeJson(doc, json);
 
@@ -213,7 +213,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
   Serial.println("], is me");
   
   bool isRegisterMessage = doc["Register"].is<int>();
-  int index = GetExistedDeviceInt(wifiMeshNodeId);
+  int index = GetExistedDeviceIndex(wifiMeshNodeId);
 
   // Software Serial send out value
   if (!isRegisterMessage && index != -1)
@@ -278,7 +278,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
 
 void SendoutRegisteredSuccessMessage(unsigned int target)
 {
-  StaticJsonDocument<jsonSerializeRegisterSize> doc;
+  StaticJsonDocument<jsonSerializeDataSize> doc;
   doc["To"] = target;
   doc["Register"] = 1;
   String str;
@@ -290,7 +290,7 @@ void SoftwareSerialReceiveAndSendout()
 {
   if(!mySerial.available()) return;
   
-  StaticJsonDocument<jsonSerializeAWSDataSize> doc;
+  StaticJsonDocument<jsonDeserializeAWSDataSize> doc;
 
   DeserializationError error = deserializeJson(doc, mySerial);
   if (error) {
