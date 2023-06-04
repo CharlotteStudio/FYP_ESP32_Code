@@ -185,7 +185,7 @@ void SetCharacteristicMessage(char* characteristicUUID, String str)
     return;
   }
 
-  printf("[%s] set the Value : [%s]\n", characteristicUUID, str.c_str());
+  //printf("[%s] set the Value : [%s]\n", characteristicUUID, str.c_str());
   myCharacteristicArray[matchIndex]->setValue(str.c_str());
 }
 
@@ -200,7 +200,7 @@ String GetCharacteristicMessage(char* characteristicUUID)
   }
 
   std::string value = myCharacteristicArray[matchIndex]->getValue();
-  printf("[%s] get the Value : [%s]\n", characteristicUUID, value.c_str());
+  //printf("[%s] get the Value : [%s]\n", characteristicUUID, value.c_str());
   return value.c_str();
 }
 

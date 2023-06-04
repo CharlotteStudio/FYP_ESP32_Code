@@ -79,12 +79,14 @@ void setup()
   SetUpReceivedMessageCallback(&ReceivedMessageFormWiFiMesh);
   SetUpWifiMesh();
 
+  // The call back function will case BLE Deserialize json error, therefore closed that
+  /*
   SetUpOnCharacteristicChangeCallback(OnTargetChange, characteristicUUID_To);
-
   for(int i = 0; i < maxCharacteristicUUIDChannelCount; i++)
   {
     SetUpOnCharacteristicChangeCallback(OnValueChannelChangeCallback, characteristicUUID_channel[i]);
   }
+  */
 
   SoftwareSerialSendout("Check State");
 }
@@ -95,6 +97,7 @@ void loop()
 
   if (!isConnectedAWS && needWifi) { delay(50); return; }
   
+  UpdateBLECallback();
   UpdateWifiMesh();
 
   int triggerActiveDevice = CheckDeviceListener();
@@ -111,6 +114,26 @@ void loop()
   }
 
   delay(50);
+}
+
+void UpdateBLECallback()
+{
+  String toStr = GetCharacteristicMessage(characteristicUUID_To);
+  if (!toStr.equals(ble_empty))
+  {
+    OnTargetChange(0, toStr);
+  }
+
+  for(int i = 0; i < maxCharacteristicUUIDChannelCount; i++)
+  {
+    int channel = i+specialChannelCount;
+    String str = GetCharacteristicMessage(characteristicUUID_channel[i]);
+
+    if (str.equals(ble_empty)) continue;
+    
+    OnValueChannelChangeCallback(channel, str);
+    SetCharacteristicMessage(characteristicUUID_channel[i], ble_empty);
+  }
 }
 
 void SoftwareSerialSendout(String str)
