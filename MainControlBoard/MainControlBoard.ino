@@ -42,7 +42,6 @@ void OnTargetChange(int index, String str)
 
   String json = GetCharacteristicMessage(characteristicUUID_Message);
   ReceivedMessageFormBLE(json);
-  nextTime_bleMessageReset = millis() + ble_message_reset_time;
 }
 
 void OnValueChannelChangeCallback(int index, String str)
@@ -150,10 +149,11 @@ void ReceivedMessageFormBLE(String &json)
   }
   else
   {
-    printf("Decive [%s] had been existed, resend success message :\n", mac.c_str());
-
     int index = GetExistedDeviceInt(mac);
     int channel = deviceInfo[index].bleChannel;
+    deviceInfo[index].wifiMeshNodeId = 0;
+    
+    printf("Decive [%s] had been existed, resend success message :\nReset wifiMeshNodeId to [%u]\n", mac.c_str(), deviceInfo[index].wifiMeshNodeId);
     if (channel == -1)
     {
       printf("have not assign channel, assign a new channel [%d]n", currentChannelIndex);
@@ -185,6 +185,7 @@ void SendoutRegisteredSuccessMessage_BLE(String mac, int channelNumber)
   
   SetCharacteristicMessage(characteristicUUID_To, mac);
   SetCharacteristicMessage(characteristicUUID_Message, str);
+  nextTime_bleMessageReset = millis() + ble_message_reset_time;
 }
 
 void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
@@ -233,20 +234,31 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
   // Create a new Device
   if (index == -1)
   {
-    DeviceInfo newDevice = {
-        .deviceMac = doc["DeviceMac"].as<String>(),
-        .deviceTpye = doc["DeviceTpye"].as<int>(),
-        .onOff = doc["Register"].as<int>(),
-        .value = 0,
-        .wifiMeshNodeId = wifiMeshNodeId,
-        .bleChannel = -1
-    };
-    deviceInfo[currentRegistedDeviceCount++] = newDevice;
-    
-    printf("Register a new device :\n");
-    PrintDeviceInfo(currentRegistedDeviceCount);
-    printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount+1);
+    String mac_address = doc["DeviceMac"].as<String>();
 
+    // CHeck the device is registered by BLE
+    if(IsExistedDevice(mac_address))
+    {
+      int index = GetExistedDeviceInt(mac_address);
+      deviceInfo[index].wifiMeshNodeId = wifiMeshNodeId;
+      printf("Decive [%s] had been existed, resend success message :\nReset wifiMeshNodeId to [%u]\n", mac_address.c_str(), deviceInfo[index].wifiMeshNodeId);
+    }
+    else
+    {
+      DeviceInfo newDevice = {
+          .deviceMac = mac_address,
+          .deviceTpye = doc["DeviceTpye"].as<int>(),
+          .onOff = doc["Register"].as<int>(),
+          .value = 0,
+          .wifiMeshNodeId = wifiMeshNodeId,
+          .bleChannel = -1
+      };
+      deviceInfo[currentRegistedDeviceCount++] = newDevice;
+      
+      printf("Register a new device :\n");
+      PrintDeviceInfo(currentRegistedDeviceCount);
+      printf("Current Registered Decive Count is [%d]\n", currentRegistedDeviceCount+1);
+    }
     SendoutRegisteredSuccessMessage(wifiMeshNodeId);
   }
   else
@@ -305,23 +317,37 @@ void SoftwareSerialReceiveAndSendout()
   
   String mac_address = doc["DeviceMac"].as<String>();
 
+// Checking the device is existed.
   if (!IsExistedDevice(mac_address))
   {
     printf("Don't find the device by address [%s]\n", mac_address.c_str());
     return;
   }
 
-  // Send out to WiFi Mesh
+// Send out to WiFi Mesh
   StaticJsonDocument<jsonSerializeDataSize> sendoutDoc;
 
-  sendoutDoc["To"] = GetWiFiMeshNodeIdByMacAddress(mac_address);
-  
   if (doc["ActiveState"].is<int>())    sendoutDoc["ActiveState"]    = doc["ActiveState"];
   if (doc["SetUpdateSpeed"].is<int>()) sendoutDoc["SetUpdateSpeed"] = doc["SetUpdateSpeed"];
   if (doc["OwnerDevice"].is<int>())    sendoutDoc["OwnerDevice"]    = doc["OwnerDevice"];
   if (doc["ActiveValue"].is<int>())    sendoutDoc["ActiveValue"]    = doc["ActiveValue"];
 
+  unsigned int nodeId = GetWiFiMeshNodeIdByMacAddress(mac_address);
   String str;
-  serializeJsonPretty(sendoutDoc, str);
-  SendoutWifiMesh(str);
+
+  if (nodeId == 0)
+  {
+    printf("The message target mac is [%s], but no nodeId, send by BLE.\n", mac_address.c_str());
+    serializeJsonPretty(sendoutDoc, str);
+    SetCharacteristicMessage(characteristicUUID_To, mac_address);
+    SetCharacteristicMessage(characteristicUUID_Message, str);
+  }
+  else
+  {
+    printf("The message target mac is [%s], nodeId is [%u], send by Wifi-mesh.\n", mac_address.c_str(), nodeId);
+    sendoutDoc["To"] = nodeId;
+
+    serializeJsonPretty(sendoutDoc, str);
+    SendoutWifiMesh(str);
+  }
 }
