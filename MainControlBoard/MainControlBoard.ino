@@ -85,6 +85,8 @@ void setup()
   {
     SetUpOnCharacteristicChangeCallback(OnValueChannelChangeCallback, characteristicUUID_channel[i]);
   }
+
+  SoftwareSerialSendout("Check State");
 }
 
 void loop()
@@ -103,6 +105,19 @@ void loop()
   }
 
   delay(50);
+}
+
+void SoftwareSerialSendout(String str)
+{
+  StaticJsonDocument<jsonSerializeRegisterSize> doc;
+
+  doc["message"] = str;
+  Serial.println("Send out to SoftwareSerial :");
+  serializeJsonPretty(doc, Serial);
+  Serial.println();
+  
+  // SoftwareSerialSendout
+  serializeJsonPretty(doc, mySerial);
 }
 
 void ReceivedMessageFormBLE(String &json)

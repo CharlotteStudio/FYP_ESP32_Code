@@ -90,6 +90,28 @@ String HandleReceivedMessageFromSoftwareSerial()
     return "";
   }
 
+  bool isMessage = doc["message"].is<String>();
+  if (isMessage)
+  {
+    Serial.println("Get a message :");
+    serializeJsonPretty(doc, Serial);
+    Serial.println("");
+    String command = doc["message"].as<String>();
+
+    if (command.equalsIgnoreCase("Check State"))
+    {
+      if (WiFi.isConnected())
+      {
+        SoftwareSerialSendout("Connected WiFi");
+      }
+      if (IsConnectedAWS())
+      {
+        SoftwareSerialSendout("Connected AWS");
+      }
+    }
+    return "";
+  }
+
   printf("DeviceTpye is [%d]\nDeviceMac is  [%s]\n", doc["DeviceTpye"].as<int>(), doc["DeviceMac"].as<String>().c_str());
  
   if (doc["Register"].is<int>())
