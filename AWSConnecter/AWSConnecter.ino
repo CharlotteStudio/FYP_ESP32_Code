@@ -8,8 +8,10 @@
 
 #define wifi_ssid "Cabala"
 #define wifi_password "21424861"
-#define wifi_ssid2 "Galaxy A33"
-#define wifi_password2 "64854678"
+#define wifi_ssid2 "KikoChan"
+#define wifi_password2 "Sam123789"
+#define wifi_ssid3 "Galaxy A33"
+#define wifi_password3 "64854678"
 
 String userName = "testingtesting@gmail.com";
 String password = "1234567890";
@@ -23,6 +25,7 @@ void setup()
 
   AddWiFiAddress(wifi_ssid, wifi_password);
   AddWiFiAddress(wifi_ssid2, wifi_password2);
+  AddWiFiAddress(wifi_ssid3, wifi_password3);
 }
 
 void loop()
