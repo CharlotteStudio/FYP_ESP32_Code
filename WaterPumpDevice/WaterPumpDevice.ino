@@ -16,6 +16,7 @@ void loop()
   
   if (!IsConnected()) { TryConnection(); return; }
 
+  if (isConnectedBLEService())UpdateBLE();
   if (isConnectedMeshNetwork) UpdateWifiMesh();
   
   if (!isRegistered) { TrySendRegisterMessage(); return; }
