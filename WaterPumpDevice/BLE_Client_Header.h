@@ -1,4 +1,5 @@
-/*
+/* Version 0.1.2
+ *  
  * BLE Client ESP32 only
  * Resource : https://www.electronicshub.org/esp32-ble-tutorial/
  * 
@@ -104,15 +105,19 @@ class ConnectedCallback : public BLEClientCallbacks
   void onConnect(BLEClient* bleClient)
   {
     Serial.println("Connected");
-    connectedBLECallback();
     ClearDeviceArray();
+    
+    if (connectedBLECallback == NULL) return;
+    connectedBLECallback();
   }
 
   void onDisconnect(BLEClient* bleClient)
   {
     Serial.println("Disconnected");
-    disconnectedBLECallback();
     DisconnectDevice();
+
+    if (disconnectedBLECallback == NULL) return;
+    disconnectedBLECallback();
   }
 };
 
@@ -126,6 +131,7 @@ void SetUpBLEDevices(char* deviceName)
 void RegisterCharacteristic(char* characteristic)
 {
   targetCharacteristicArray[registeredCharacteristicCount] = BLEUUID(characteristic);
+  printf("Register Characteristic Success : [%s]\n", characteristic);
   registeredCharacteristicCount++;
 }
 
@@ -197,6 +203,18 @@ bool GetRemoteService()
     return false;
   }
   Serial.println("Found Service successful.");
+
+  std::map<std::string, BLERemoteCharacteristic*>* characteristicMap = remoteService->getCharacteristics();
+  int characteristicCount = characteristicMap->size();
+  printf("The Remote Service Characteristic Count is [%d]\n", characteristicCount);
+
+  for (auto it = characteristicMap->begin(); it != characteristicMap->end(); ++it)
+  {
+    const std::string& key = it->first;
+    printf("The Characteristic is [%s]\n", key.c_str());
+  }
+  printf("\n");
+  
   return true;
 }
 
@@ -204,10 +222,12 @@ void RegisterRemoteCharacteristic()
 {
   for (int i = 0; i < maxCharacteristicCount; i++)
   {
+    printf("Try get the remote Service : [%s]\n", targetCharacteristicArray[i].toString().c_str());
     remoteCharacteristicArray[i] = remoteService->getCharacteristic(targetCharacteristicArray[i]);
 
     if (remoteCharacteristicArray[i] == nullptr)
     {
+      printf("The Target Characteristic Array [%d] is null !\n", i);
     } 
     else
     {
@@ -250,15 +270,18 @@ bool TryConnectTargetServer()
 
 void DisconnectDevice()
 {
-  if (bleClient->isConnected()) bleClient->disconnect();
-  
-  // Release BLEClient member
-  delete bleClient;
+  if (isConnectedBLEService())
+    bleClient->disconnect();
+  else
+    return;
+
   bleClient = nullptr;
 
   targetServiceUUID  = BLEUUID("");
   targetDevice       = NULL;
   currentScannedDeviceCount = 0;
+
+  if (disconnectedBLECallback == NULL) return;
   disconnectedBLECallback();
 }
 
