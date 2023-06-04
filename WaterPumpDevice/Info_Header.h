@@ -3,8 +3,6 @@
 #define jsonDeserializeSize 192
 #define jsonSerializeAWSDataSize 256
 
-#define DeviceTpye 1
-
 /* DeviceTpye
 0 : Main Device
 1 : Soli Sensor
@@ -14,12 +12,17 @@
 5 : Lighting
 */
 
+// Pump mac address-1 : 176:178:28:167:24:192
+// Pump mac address-2 : 120:33:132:225:22:76
+// Soil mac address-1 : 176:178:28:166:252:228
+// Soil mac address-2 : 120:33:132:224:254:84
+
 // Device ⇒ Main Control Board Register
 /*
 {
   "To":1234567890,
   "DeviceType":1,
-  "DeviceMac":[255,255,255,255,255,255],
+  "DeviceMac":"255:255:255:255:255:255",
   "Register":1
 }
 */
@@ -38,15 +41,15 @@
   "UserName":"TestingTesting@gmail.com",
   "Password":"1234567890123456",
   "DeviceType":1,
-  "DeviceMac":[255,255,255,255,255,255],
+  "DeviceMac":"255:255:255:255:255:255",
   "Register":0
 }
 */
 
 
 // AWS ⇒ Main Control Board (Set Active)
-// Water pump mac address : 120:33:132:225:22:76
-// Water pump mac address (new A) : 176:178:28:167:225:96
+// Pump mac address-1 : 176:178:28:167:24:192
+// Pump mac address-2 : 120:33:132:225:22:76
 /*
 {
   "DeviceMac":String
@@ -55,17 +58,18 @@
   "ActiveState":int
 }
 {
-  "DeviceMac":String
-  "ActiveState":int
+  "DeviceMac":"120:33:132:225:22:76",
+  "ActiveState":1
 }
 */
 
 // AWS ⇒ Main Control Board (Set Update speed)
-// Soil mac address : 120:33:132:224:254:84
+// Soil mac address-1 : 176:178:28:166:252:228
+// Soil mac address-2 : 120:33:132:224:254:84
 /*
 {
-  "DeviceMac":String,
-  "SetUpdateSpeed":int
+  "DeviceMac":"176:178:28:166:252:228",
+  "SetUpdateSpeed":60
 }
 */
 
@@ -73,10 +77,10 @@
 /*
 {
   "To":1234567890,
-  "ActiveState":int
+  "ActiveState":1
 }
 {
   "To":1234567890,
-  "SetUpdateSpeed":int
+  "SetUpdateSpeed":60
 }
 */
