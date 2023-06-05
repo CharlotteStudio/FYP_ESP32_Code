@@ -192,7 +192,7 @@ void ReceivedMessageFormBLE(String &json)
     printf("Decive [%s] had been existed, resend success message :\nReset wifiMeshNodeId to [%u]\n", mac.c_str(), deviceInfo[index].wifiMeshNodeId);
     if (channel == -1)
     {
-      printf("have not assign channel, assign a new channel [%d]n", currentChannelIndex);
+      printf("Have not assign channel, assign a new channel [%d]\n", currentChannelIndex);
       deviceInfo[index].bleChannel = currentChannelIndex;
       currentChannelIndex++;
     }
@@ -342,6 +342,8 @@ void SoftwareSerialReceiveAndSendout()
 
 // Send out to WiFi Mesh
   StaticJsonDocument<jsonSerializeDataSize> sendoutDoc;
+
+  Serial.println("Received message from AWS");
 
   if (doc["ActiveState"].is<int>())    sendoutDoc["ActiveState"]    = doc["ActiveState"];
   if (doc["SetUpdateSpeed"].is<int>()) sendoutDoc["SetUpdateSpeed"] = doc["SetUpdateSpeed"];

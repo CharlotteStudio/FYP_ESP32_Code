@@ -28,7 +28,7 @@ void PrintDeviceInfo(int index)
   printf("deviceTpye     : [%d]\ndeviceMac      : [%s]\n", deviceInfo[index].deviceTpye, deviceInfo[index].deviceMac.c_str());
   printf("onOff          : [%d]\nvalue          : [%d]\n", deviceInfo[index].onOff, deviceInfo[index].value);
   printf("wifiMeshNodeId : [%u]\nbleChannel     : [%d]\n", deviceInfo[index].wifiMeshNodeId, deviceInfo[index].bleChannel);
-  printf("listen Device  : [%s]\n", deviceInfo[index].listenDevice);
+  printf("listen Device  : [%s]\n", deviceInfo[index].listenDevice.c_str());
   printf("active Value   : [%d]\nactive State   : [%d]\n", deviceInfo[index].activeValue, deviceInfo[index].activeState);
 }
 
@@ -143,7 +143,7 @@ int CheckDeviceListener()
       if (deviceInfo[i].activeState == 1)                                  continue;
 
       deviceInfo[i].activeState = 1;
-      printf("Device [%s] trigger active.\nListen Device value [%d] >= active Value [%d]\n", deviceInfo[i].deviceMac, deviceInfo[listenDeviceIndex].value, deviceInfo[i].activeValue);
+      printf("Device [%s] trigger active.\nListen Device value [%d] >= active Value [%d]\n", deviceInfo[i].deviceMac.c_str(), deviceInfo[listenDeviceIndex].value, deviceInfo[i].activeValue);
       return i;
     }
   }
