@@ -315,3 +315,47 @@ String CreateValueDataMessage(int value)
   serializeJsonPretty(doc, str);
   return str;
 }
+
+void SendoutClosedPumpMessage()
+{
+  if (!IsConnected() || !isRegistered) return;
+
+  if (isConnectedBLEService())
+  {
+    if (valueChannel == -1) return;
+    SendoutBLEMessage(characteristicUUID_channel[valueChannel], "0");
+  }
+
+  if (isConnectedMeshNetwork)
+  {
+    StaticJsonDocument<jsonSerializeDataSize> doc;
+    doc["To"] = 0;
+    doc["ActiveState"] = 0;
+    String str;
+    serializeJsonPretty(doc, str);
+    SendoutWifiMesh(str);
+  }
+}
+
+void CheckingBLEChannel()
+{
+  if (!isConnectedBLEService() || !isRegistered || valueChannel == -1) return;
+
+  String str = ReceivedBLEMessage(characteristicUUID_channel[valueChannel]);
+  
+  if (str.equals(ble_empty)) return;
+
+  int activeCode = str.toInt();
+  
+  if (activeCode != 1 && activeCode != 0)
+  {
+    printf("[%d] is not command code.\n", activeCode);
+    return;
+  }
+    
+  printf("command code is [%d]\n", activeCode);
+  if (activeCode == 1) ActiveWaterPump();
+  if (activeCode == 0) CloseWaterPump();
+  
+  SendoutBLEMessage(characteristicUUID_channel[valueChannel], ble_empty);
+}
