@@ -58,6 +58,8 @@ void OnClickCallback()
     DisconnectedWifiMesh();
     tryConnectBLE = true;
   }
+  
+  autoDisconnect = false;
   isRegistered = false;
   delay(2000);
   nextTime_switchConnect = millis() + waitingTime_switchConnect;
@@ -178,6 +180,7 @@ void UpdateBLE()
     {
       printf("Main Control Device is disconnected, try disconnected that.\n");
       DisconnectDevice();
+      isRegistered = false;
     }
   }
 }
