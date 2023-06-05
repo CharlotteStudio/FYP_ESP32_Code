@@ -86,10 +86,12 @@
 // Pump mac address-2 : 120:33:132:225:22:76
 /*
 {
-  "DeviceMac":String
-  "OwnerDevice":string
-  "ActiveValue":int
-  "ActiveState":int
+  "DeviceMac":"120:33:132:225:22:76",
+  "ListenDevice":""
+}
+{
+  "DeviceMac":"120:33:132:225:22:76",
+  "ActiveValue":3000
 }
 {
   "DeviceMac":"120:33:132:225:22:76",
