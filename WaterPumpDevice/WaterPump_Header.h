@@ -31,9 +31,10 @@ void CloseWaterPump()
   printf("Close water pump\n");
 }
 
-void AutoCloseWaterPump()
+bool IsCloseWaterPump()
 {
-  if (!isRelayOn) return;
-  if (millis() < nextTime_closeWaterPump) return;
+  if (!isRelayOn) return false;
+  if (millis() < nextTime_closeWaterPump) return false;
   CloseWaterPump();
+  return true;
 }

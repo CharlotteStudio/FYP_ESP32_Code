@@ -12,7 +12,7 @@ void setup()
 void loop()
 {
   CheckButtonOnClick(0, pin_button);
-  AutoCloseWaterPump();
+  bool cloesedPump = IsCloseWaterPump();
   
   if (!IsConnected()) { TryConnection(); return; }
 
