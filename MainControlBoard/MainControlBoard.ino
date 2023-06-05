@@ -51,20 +51,42 @@ void OnValueChannelChangeCallback(int index, String str)
   {
     if (deviceInfo[i].bleChannel == channelIndex)
     {
-      StaticJsonDocument<jsonDeserializeRegisterSize> doc;
-      
-      deviceInfo[i].value = str.toInt();
-      printf("Update value is [%d]\n", deviceInfo[i].value);
-      
-      doc["Value"]      = deviceInfo[i].value;
-      doc["DeviceTpye"] = deviceInfo[i].deviceTpye;
-      doc["DeviceMac"]  = deviceInfo[i].deviceMac;
-      
-      serializeJsonPretty(doc, mySerial);
-      Serial.println("Software Serial send out json : ");
-      serializeJsonPretty(doc, Serial);
-      Serial.println("");
-      return;
+      // soil
+      if (deviceInfo[i].deviceTpye == 1)
+      {
+        StaticJsonDocument<jsonDeserializeRegisterSize> doc;
+        
+        deviceInfo[i].value = str.toInt();
+        printf("Update value is [%d]\n", deviceInfo[i].value);
+        
+        doc["Value"]      = deviceInfo[i].value;
+        doc["DeviceTpye"] = deviceInfo[i].deviceTpye;
+        doc["DeviceMac"]  = deviceInfo[i].deviceMac;
+        
+        serializeJsonPretty(doc, mySerial);
+        Serial.println("Software Serial send out json : ");
+        serializeJsonPretty(doc, Serial);
+        Serial.println("");
+        return;
+      }
+
+      // water
+      if (deviceInfo[i].deviceTpye == 2)
+      {
+        StaticJsonDocument<jsonDeserializeRegisterSize> doc;
+        deviceInfo[i].activeState = str.toInt();
+        printf("Update Active State is [%d]\n", deviceInfo[i].activeState);
+
+        doc["ActiveState"]= deviceInfo[i].activeState;
+        doc["DeviceTpye"] = deviceInfo[i].deviceTpye;
+        doc["DeviceMac"]  = deviceInfo[i].deviceMac;
+        
+        serializeJsonPretty(doc, mySerial);
+        Serial.println("Software Serial send out json : ");
+        serializeJsonPretty(doc, Serial);
+        Serial.println("");
+        return;
+      }
     }
   }
   printf("Unregister device [%d] message : [%s]\n", channelIndex, str.c_str());
