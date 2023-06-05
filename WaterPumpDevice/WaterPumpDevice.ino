@@ -20,6 +20,10 @@ void loop()
   if (isConnectedMeshNetwork) UpdateWifiMesh();
   
   if (!isRegistered) { TrySendRegisterMessage(); return; }
+
+  if (cloesedPump) SendoutClosedPumpMessage();
+
+  CheckingBLEChannel();
   
   delay(50);
 }
