@@ -422,24 +422,34 @@ void SoftwareSerialReceiveAndSendout()
 
 void AutoSendActiveMessage(int index)
 {
-  StaticJsonDocument<jsonSerializeDataSize> doc;
-
-  doc["ActiveState"] = 1;
-  String str;
-  
   if (deviceInfo[index].wifiMeshNodeId == 0)
   {
-    printf("Send out active message to [%s] by BLE\n", deviceInfo[index].deviceMac );
-    serializeJsonPretty(doc, str);
-    SetCharacteristicMessage(characteristicUUID_To, deviceInfo[index].deviceMac);
-    SetCharacteristicMessage(characteristicUUID_Message, str);
+    if (deviceInfo[index].bleChannel == -1) return;
+    
+    printf("Send out active message to [%s] by BLE\n", deviceInfo[index].deviceMac.c_str());
+    SetCharacteristicMessage(characteristicUUID_channel[deviceInfo[index].bleChannel], "1");
   }
   else
   {
-    printf("Send out active message to [%s] by Wifi\n", deviceInfo[index].deviceMac );
+    StaticJsonDocument<jsonSerializeDataSize> doc;
+    
+    printf("Send out active message to [%s] by Wifi\n", deviceInfo[index].deviceMac.c_str());
     
     doc["To"] = deviceInfo[index].wifiMeshNodeId;
+    doc["ActiveState"] = 1;
+    String str;
     serializeJsonPretty(doc, str);
     SendoutWifiMesh(str);
   }
+  
+  StaticJsonDocument<jsonDeserializeRegisterSize> awsDoc;
+
+  awsDoc["ActiveState"]= deviceInfo[index].activeState;
+  awsDoc["DeviceTpye"] = deviceInfo[index].deviceTpye;
+  awsDoc["DeviceMac"]  = deviceInfo[index].deviceMac;
+  
+  serializeJsonPretty(awsDoc, mySerial);
+  Serial.println("Software Serial send out json : ");
+  serializeJsonPretty(awsDoc, Serial);
+  Serial.println("");
 }
