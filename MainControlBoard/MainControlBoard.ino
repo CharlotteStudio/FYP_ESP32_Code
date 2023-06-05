@@ -270,11 +270,25 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
   // Software Serial send out value
   if (!isRegisterMessage && index != -1)
   {
-    deviceInfo[index].value = doc["Value"].as<int>();
-    printf("Update value is [%d]\n", deviceInfo[index].value);
-    
-    doc["DeviceTpye"] = deviceInfo[index].deviceTpye;
-    doc["DeviceMac"] = deviceInfo[index].deviceMac;
+    bool isUpdateValue = doc["Value"].is<int>();
+    if (isUpdateValue)
+    {
+      deviceInfo[index].value = doc["Value"].as<int>();
+      printf("Update value is [%d]\n", deviceInfo[index].value);
+      
+      doc["DeviceTpye"] = deviceInfo[index].deviceTpye;
+      doc["DeviceMac"] = deviceInfo[index].deviceMac;
+    }
+
+    bool isUpdateState = doc["ActiveState"].is<int>();
+    if (isUpdateState)
+    {
+      deviceInfo[index].activeState = doc["ActiveState"].as<int>();
+      printf("Update Active State is [%d]\n", deviceInfo[index].activeState);
+      
+      doc["DeviceTpye"] = deviceInfo[index].deviceTpye;
+      doc["DeviceMac"] = deviceInfo[index].deviceMac;
+    }
     
     serializeJsonPretty(doc, mySerial);
     Serial.println("Software Serial send out json : ");
@@ -369,8 +383,22 @@ void SoftwareSerialReceiveAndSendout()
 
   if (doc["ActiveState"].is<int>())    sendoutDoc["ActiveState"]    = doc["ActiveState"];
   if (doc["SetUpdateSpeed"].is<int>()) sendoutDoc["SetUpdateSpeed"] = doc["SetUpdateSpeed"];
-  if (doc["OwnerDevice"].is<int>())    sendoutDoc["OwnerDevice"]    = doc["OwnerDevice"];
-  if (doc["ActiveValue"].is<int>())    sendoutDoc["ActiveValue"]    = doc["ActiveValue"];
+
+  if (doc["ListenDevice"].is<String>())
+  {
+    int index = GetExistedDeviceIndex(mac_address);
+    deviceInfo[index].listenDevice = doc["ListenDevice"].as<String>();
+    printf("Update device [%s] listen Device to [%s]\n", deviceInfo[index].deviceMac.c_str(), deviceInfo[index].listenDevice.c_str());
+    return;
+  }
+  
+  if (doc["ActiveValue"].is<int>())
+  {
+    int index = GetExistedDeviceIndex(mac_address);
+    deviceInfo[index].activeValue = doc["ActiveValue"].as<int>();
+    printf("Update device [%s] Active Value to [%d]\n", deviceInfo[index].deviceMac.c_str(), deviceInfo[index].activeValue);
+    return;
+  }
 
   unsigned int nodeId = GetWiFiMeshNodeIdByMacAddress(mac_address);
   String str;
