@@ -10,7 +10,7 @@
 //#define soil_mac_address_1 "176:178:28:166:252:228"
 //#define soil_mac_address_2 "120:33:132:224:254:84"
 
-/* DeviceTpye
+/* DeviceType
 0 : Main Device
 1 : Soli Sensor
 2 : WaterPump

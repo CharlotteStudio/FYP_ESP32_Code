@@ -7,7 +7,7 @@
 #include "MacAddress_Header.h"
 #include "SoilSensor_Header.h"
 
-#define DeviceTpye 1
+#define DeviceType 1
 
 #define waitingTime_switchConnect  30000
 #define waitingTime_sendRegisteredMessage 5000
@@ -143,7 +143,7 @@ String CreateRegisteredMessage()
 {
   StaticJsonDocument<jsonSerializeRegisterSize> doc;
   doc["To"] = 0;
-  doc["DeviceTpye"] = DeviceTpye;
+  doc["DeviceType"] = DeviceType;
   doc["DeviceMac"] = GetMacAddressString();
   doc["Register"] = 1;
   String str;
@@ -349,8 +349,8 @@ void CheckingBLEChannel()
   }
     
   printf("command code is [%d]\n", activeCode);
-  if (activeCode == 1) ActiveWaterPump();
-  if (activeCode == 0) CloseWaterPump();
+  //if (activeCode == 1) ActiveWaterPump();
+  //if (activeCode == 0) CloseWaterPump();
   
   SendoutBLEMessage(characteristicUUID_channel[valueChannel], ble_empty);
 }

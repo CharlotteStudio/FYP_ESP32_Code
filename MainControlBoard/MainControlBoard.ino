@@ -52,7 +52,7 @@ void OnValueChannelChangeCallback(int index, String str)
     if (deviceInfo[i].bleChannel == channelIndex)
     {
       // soil
-      if (deviceInfo[i].deviceTpye == 1)
+      if (deviceInfo[i].deviceType == 1)
       {
         StaticJsonDocument<jsonDeserializeRegisterSize> doc;
         
@@ -60,7 +60,7 @@ void OnValueChannelChangeCallback(int index, String str)
         printf("Update value is [%d]\n", deviceInfo[i].value);
         
         doc["Value"]      = deviceInfo[i].value;
-        doc["DeviceTpye"] = deviceInfo[i].deviceTpye;
+        doc["DeviceType"] = deviceInfo[i].deviceType;
         doc["DeviceMac"]  = deviceInfo[i].deviceMac;
         
         serializeJsonPretty(doc, mySerial);
@@ -71,14 +71,14 @@ void OnValueChannelChangeCallback(int index, String str)
       }
 
       // water
-      if (deviceInfo[i].deviceTpye == 2)
+      if (deviceInfo[i].deviceType == 2)
       {
         StaticJsonDocument<jsonDeserializeRegisterSize> doc;
         deviceInfo[i].activeState = str.toInt();
         printf("Update Active State is [%d]\n", deviceInfo[i].activeState);
 
         doc["ActiveState"]= deviceInfo[i].activeState;
-        doc["DeviceTpye"] = deviceInfo[i].deviceTpye;
+        doc["DeviceType"] = deviceInfo[i].deviceType;
         doc["DeviceMac"]  = deviceInfo[i].deviceMac;
         
         serializeJsonPretty(doc, mySerial);
@@ -201,7 +201,7 @@ void ReceivedMessageFormBLE(String &json)
 
   if (!IsExistedDevice(mac))
   {
-    CreateNewDevice(mac, doc["DeviceTpye"].as<int>(), doc["Register"].as<int>(), 0, currentChannelIndex);
+    CreateNewDevice(mac, doc["DeviceType"].as<int>(), doc["Register"].as<int>(), 0, currentChannelIndex);
     SendoutRegisteredSuccessMessage_BLE(mac, currentChannelIndex);
     currentChannelIndex++;
   }
@@ -276,7 +276,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
       deviceInfo[index].value = doc["Value"].as<int>();
       printf("Update value is [%d]\n", deviceInfo[index].value);
       
-      doc["DeviceTpye"] = deviceInfo[index].deviceTpye;
+      doc["DeviceType"] = deviceInfo[index].deviceType;
       doc["DeviceMac"] = deviceInfo[index].deviceMac;
     }
 
@@ -286,7 +286,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
       deviceInfo[index].activeState = doc["ActiveState"].as<int>();
       printf("Update Active State is [%d]\n", deviceInfo[index].activeState);
       
-      doc["DeviceTpye"] = deviceInfo[index].deviceTpye;
+      doc["DeviceType"] = deviceInfo[index].deviceType;
       doc["DeviceMac"] = deviceInfo[index].deviceMac;
     }
     
@@ -309,7 +309,7 @@ void ReceivedMessageFormWiFiMesh(unsigned int wifiMeshNodeId, String &json)
     }
     else
     {
-      CreateNewDevice(mac, doc["DeviceTpye"].as<int>(), doc["Register"].as<int>(), wifiMeshNodeId, -1);
+      CreateNewDevice(mac, doc["DeviceType"].as<int>(), doc["Register"].as<int>(), wifiMeshNodeId, -1);
     }
     SendoutRegisteredSuccessMessage(wifiMeshNodeId);
   }
@@ -445,7 +445,7 @@ void AutoSendActiveMessage(int index)
   StaticJsonDocument<jsonDeserializeRegisterSize> awsDoc;
 
   awsDoc["ActiveState"]= deviceInfo[index].activeState;
-  awsDoc["DeviceTpye"] = deviceInfo[index].deviceTpye;
+  awsDoc["DeviceType"] = deviceInfo[index].deviceType;
   awsDoc["DeviceMac"]  = deviceInfo[index].deviceMac;
   
   serializeJsonPretty(awsDoc, mySerial);

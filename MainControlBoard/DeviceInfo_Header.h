@@ -9,7 +9,7 @@ typedef struct DeviceInfo DeviceInfo;
 struct DeviceInfo
 {
   String deviceMac;
-  int deviceTpye;
+  int deviceType;
   int bleChannel;
   unsigned int wifiMeshNodeId;
   int onOff;
@@ -25,7 +25,7 @@ static int currentRegistedDeviceCount = 0;
 void PrintDeviceInfo(int index)
 {
   printf("DeviceInfo     : [%d]\n", index);
-  printf("deviceTpye     : [%d]\ndeviceMac      : [%s]\n", deviceInfo[index].deviceTpye, deviceInfo[index].deviceMac.c_str());
+  printf("deviceType     : [%d]\ndeviceMac      : [%s]\n", deviceInfo[index].deviceType, deviceInfo[index].deviceMac.c_str());
   printf("onOff          : [%d]\nvalue          : [%d]\n", deviceInfo[index].onOff, deviceInfo[index].value);
   printf("wifiMeshNodeId : [%u]\nbleChannel     : [%d]\n", deviceInfo[index].wifiMeshNodeId, deviceInfo[index].bleChannel);
   printf("listen Device  : [%s]\n", deviceInfo[index].listenDevice.c_str());
@@ -58,7 +58,7 @@ void CreateNewDevice(String mac, int deviceType, int onOff, unsigned int nodeId,
 {
   DeviceInfo newDevice = {
       .deviceMac = mac,
-      .deviceTpye = deviceType,
+      .deviceType = deviceType,
       .bleChannel = channel,
       .wifiMeshNodeId = nodeId,
       .onOff = onOff,
@@ -131,7 +131,7 @@ int CheckDeviceListener()
 {
   for(int i = 0; i < maximum_device_count; i++)
   {
-    if (deviceInfo[i].deviceTpye == 2)
+    if (deviceInfo[i].deviceType == 2)
     {
       bool isExistedListenDevice = IsExistedDevice(deviceInfo[i].listenDevice);
       if (!isExistedListenDevice) continue;

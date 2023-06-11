@@ -7,7 +7,7 @@
 #include "MacAddress_Header.h"
 #include "WaterPump_Header.h"
 
-#define DeviceTpye 2
+#define DeviceType 2
 
 #define waitingTime_switchConnect  30000
 #define waitingTime_sendRegisteredMessage 5000
@@ -143,7 +143,7 @@ String CreateRegisteredMessage()
 {
   StaticJsonDocument<jsonSerializeRegisterSize> doc;
   doc["To"] = 0;
-  doc["DeviceTpye"] = DeviceTpye;
+  doc["DeviceType"] = DeviceType;
   doc["DeviceMac"] = GetMacAddressString();
   doc["Register"] = 1;
   String str;
