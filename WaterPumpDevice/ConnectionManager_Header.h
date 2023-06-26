@@ -233,6 +233,17 @@ void ReceivedBLECallback(String& json)
     if (activeCode == 0) CloseWaterPump();
     SendoutActivePumpMessage(activeCode);
   }
+
+  bool isSetActiveDuration = doc["ActiveDuration"].is<int>();
+  if (isSetActiveDuration)
+  {
+    int activeDuration = doc["ActiveDuration"].as<int>();
+    if (activeDuration < 1)
+      activeDuration = 1;
+
+    activeTime_waterPump = activeDuration * 1000;
+    printf("Set the Active Duration is [%d]\n", activeDuration);
+  }
 }
 
 void ReceivedWiFiMeshCallback(unsigned int from, String& json)
@@ -285,6 +296,17 @@ void ReceivedWiFiMeshCallback(unsigned int from, String& json)
       if (activeCode == 1) ActiveWaterPump();
       if (activeCode == 0) CloseWaterPump();
       SendoutActivePumpMessage(activeCode);
+    }
+
+    bool isSetActiveDuration = doc["ActiveDuration"].is<int>();
+    if (isSetActiveDuration)
+    {
+      int activeDuration = doc["ActiveDuration"].as<int>();
+      if (activeDuration < 1)
+        activeDuration = 1;
+  
+      activeTime_waterPump = activeDuration * 1000;
+      printf("Set the Active Duration is [%d]\n", activeDuration);
     }
   }
   else
