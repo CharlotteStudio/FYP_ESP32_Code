@@ -21,7 +21,7 @@ void loop()
   
   if (!isRegistered) { TrySendRegisterMessage(); return; }
 
-  if (cloesedPump) SendoutClosedPumpMessage();
+  if (cloesedPump) SendoutActivePumpMessage(0);
 
   CheckingBLEChannel();
   

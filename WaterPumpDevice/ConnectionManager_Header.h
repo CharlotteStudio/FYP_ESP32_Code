@@ -31,6 +31,7 @@ String CreateValueDataMessage(int);
 void OnClickCallback();
 void ReceivedBLECallback(String&);
 void ReceivedWiFiMeshCallback(unsigned int, String&);
+void SendoutActivePumpMessage(int);
 
 void SetUpConnection()
 {
@@ -230,6 +231,7 @@ void ReceivedBLECallback(String& json)
     printf("command code is [%d]\n", activeCode);
     if (activeCode == 1) ActiveWaterPump();
     if (activeCode == 0) CloseWaterPump();
+    SendoutActivePumpMessage(activeCode);
   }
 }
 
@@ -282,6 +284,7 @@ void ReceivedWiFiMeshCallback(unsigned int from, String& json)
       printf("command code is [%d]\n", activeCode);
       if (activeCode == 1) ActiveWaterPump();
       if (activeCode == 0) CloseWaterPump();
+      SendoutActivePumpMessage(activeCode);
     }
   }
   else
@@ -316,21 +319,21 @@ String CreateValueDataMessage(int value)
   return str;
 }
 
-void SendoutClosedPumpMessage()
+void SendoutActivePumpMessage(int value)
 {
   if (!IsConnected() || !isRegistered) return;
 
   if (isConnectedBLEService())
   {
     if (valueChannel == -1) return;
-    SendoutBLEMessage(characteristicUUID_channel[valueChannel], "0");
+    SendoutBLEMessage(characteristicUUID_channel[valueChannel], String(value));
   }
 
   if (isConnectedMeshNetwork)
   {
     StaticJsonDocument<jsonSerializeDataSize> doc;
     doc["To"] = 0;
-    doc["ActiveState"] = 0;
+    doc["ActiveState"] = value;
     String str;
     serializeJsonPretty(doc, str);
     SendoutWifiMesh(str);
