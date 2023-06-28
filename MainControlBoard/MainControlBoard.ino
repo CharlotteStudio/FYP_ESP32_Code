@@ -383,7 +383,8 @@ void SoftwareSerialReceiveAndSendout()
 
   if (doc["ActiveState"].is<int>())    sendoutDoc["ActiveState"]    = doc["ActiveState"];
   if (doc["SetUpdateSpeed"].is<int>()) sendoutDoc["SetUpdateSpeed"] = doc["SetUpdateSpeed"];
-
+  if (doc["ActiveDuration"].is<int>()) sendoutDoc["ActiveDuration"] = doc["ActiveDuration"];
+  
   if (doc["ListenDevice"].is<String>())
   {
     int index = GetExistedDeviceIndex(mac_address);
